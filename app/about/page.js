@@ -7,7 +7,7 @@ export default function About() {
           <p className="text-xs uppercase tracking-widest text-blue-400 mb-6">About</p>
           <div className="space-y-5">
             <p className="text-base md:text-lg leading-relaxed text-[#8892A4]">
-              Hey, I'm Vardhan — a Full-Stack Developer and Digital Marketer based in Indore, India. I build web applications and help brands grow through content and strategy.
+              Hey, I'm Vardhan — a Full-Stack Developer and Digital Marketer based in lucknow, India. I build web applications and help brands grow through content and strategy.
             </p>
             <p className="text-base md:text-lg leading-relaxed text-[#8892A4]">
               I'm currently sharpening my skills in React, MongoDB and Node.js while working on freelance projects in lead generation, content creation, and web development.
