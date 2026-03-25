@@ -2,31 +2,32 @@ export default function ProjectsPage() {
   const projects = [
     {
       title: "Portfolio Website",
-      description: "Personal portfolio built with Next.js, Tailwind CSS, deployed on Vercel.",
+      description: "Personal developer portfolio built with Next.js 14 and Tailwind CSS. Features dark theme, responsive design, smooth animations, and deployed on Vercel.",
       tech: ["Next.js", "Tailwind CSS", "Vercel"],
-      github: "https://github.com/yourusername/portfolio",
+      github: "https://github.com/VishnuVardhan2000/my-portfolio",
       live: "https://my-portfolio-lemon-nine-24.vercel.app",
     },
     {
-      title: "Project Two",
-      description: "Short description of what this project does and what problem it solves.",
-      tech: ["React", "Node.js", "MongoDB"],
-      github: "https://github.com/yourusername/project2",
+      title: "YOUR REAL PROJECT",         // ← Replace this
+      description: "Add your description here.",  // ← Replace this
+      tech: ["React", "Node.js"],         // ← Replace with real tech
+      github: "YOUR_GITHUB_LINK_1",       // ← Replace
       live: "#",
     },
     {
-      title: "Project Three",
-      description: "Short description of what this project does and what problem it solves.",
-      tech: ["JavaScript", "CSS", "HTML"],
-      github: "https://github.com/yourusername/project3",
-      live: "#",
-    },
+  title: "TaskFlow — Task Manager App",
+  description: "Full-stack task management application with user authentication, real-time CRUD operations, priority tagging, and a responsive dashboard UI.",
+  tech: ["MongoDB", "Express.js", "Next.js", "Tailwind CSS", "JWT Auth"],
+  github: "https://github.com/VishnuVardhan2000/taskflow",
+  live: "https://taskflow-sand-gamma.vercel.app",
+  badge: "Featured"
+},
+
   ];
 
   return (
     <section className="max-w-6xl mx-auto px-4 py-20">
 
-      {/* Header */}
       <div className="mb-14 text-center">
         <h1 className="text-4xl md:text-6xl font-bold text-white mb-4"
           style={{ fontFamily: 'var(--font-syne)' }}>
@@ -38,27 +39,31 @@ export default function ProjectsPage() {
         </p>
       </div>
 
-      {/* Project Cards Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 pb-10">
         {projects.map((project, index) => (
           <div key={index}
             className="bg-white/5 border border-white/10 rounded-2xl p-6
                        hover:border-blue-500/50 hover:bg-white/10
-                       transition-all duration-300 flex flex-col gap-4">
+                       transition-all duration-300 flex flex-col gap-4 relative">
 
-            {/* Title */}
-            <h2 className="text-xl font-bold text-white"
+            {/* Featured Badge */}
+            {project.badge && (
+              <span className="absolute top-4 right-4 text-xs px-3 py-1 rounded-full
+                               bg-blue-600 text-white font-semibold">
+                ⭐ {project.badge}
+              </span>
+            )}
+
+            <h2 className="text-xl font-bold text-white pr-16"
               style={{ fontFamily: 'var(--font-syne)' }}>
               {project.title}
             </h2>
 
-            {/* Description */}
             <p className="text-gray-400 text-sm leading-relaxed flex-1"
               style={{ fontFamily: 'var(--font-space-grotesk)' }}>
               {project.description}
             </p>
 
-            {/* Tech Stack */}
             <div className="flex flex-wrap gap-2">
               {project.tech.map((t, i) => (
                 <span key={i}
@@ -68,7 +73,6 @@ export default function ProjectsPage() {
               ))}
             </div>
 
-            {/* Buttons */}
             <div className="flex gap-3 pt-2">
               <a href={project.github} target="_blank" rel="noreferrer"
                 className="flex-1 text-center text-sm py-2 rounded-xl
