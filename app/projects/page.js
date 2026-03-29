@@ -29,20 +29,14 @@ export default function ProjectsPage() {
   ];
 
   return (
-    <section className="max-w-6xl mx-auto px-4 py-20">
+    <section className="max-w-6xl mx-auto px-4 pt-6 pb-20">
 
       <div className="mb-14 text-center">
-        <h1
-          className="text-4xl md:text-6xl font-bold text-white mb-4"
-          style={{ fontFamily: "var(--font-syne)" }}
-        >
+        <h1 className="text-4xl md:text-6xl font-bold text-white mb-4">
           My Projects
         </h1>
-        <p
-          className="text-gray-400 text-lg max-w-xl mx-auto"
-          style={{ fontFamily: "var(--font-space-grotesk)" }}
-        >
-          A collection of things I've built — from web apps to freelance work.
+        <p className="text-gray-400 text-lg max-w-xl mx-auto">
+          A collection of things I&apos;ve built — from web apps to freelance work.
         </p>
       </div>
 
@@ -54,25 +48,17 @@ export default function ProjectsPage() {
                        hover:border-blue-500/50 hover:bg-white/10
                        transition-all duration-300 flex flex-col gap-4 relative"
           >
-            {/* Badge */}
             {project.badge && (
-              <span className="absolute top-4 right-4 text-[11px] font-bold px-3 py-1 rounded-full
-                               bg-blue-600 text-white font-semibold">
+              <span className="absolute top-4 right-4 text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-blue-600 text-white tracking-wide">
                 ⭐ {project.badge}
               </span>
             )}
 
-            <h2
-              className="text-xl font-bold text-white pr-16"
-              style={{ fontFamily: "var(--font-syne)" }}
-            >
+            <h2 className="text-xl font-bold text-white pr-16">
               {project.title}
             </h2>
 
-            <p
-              className="text-gray-400 text-sm leading-relaxed flex-1"
-              style={{ fontFamily: "var(--font-space-grotesk)" }}
-            >
+            <p className="text-gray-400 text-sm leading-relaxed flex-1">
               {project.description}
             </p>
 
@@ -92,8 +78,7 @@ export default function ProjectsPage() {
                 href={project.github}
                 target="_blank"
                 rel="noreferrer"
-                className="flex-1 text-center text-sm py-2 rounded-xl
-                           bg-white/10 text-white hover:bg-white/20 transition"
+                className="flex-1 text-center text-xs font-semibold py-2 rounded-xl bg-white/10 text-white hover:bg-white/20 transition"
               >
                 GitHub
               </a>
@@ -101,13 +86,11 @@ export default function ProjectsPage() {
                 href={project.live}
                 target="_blank"
                 rel="noreferrer"
-                className="flex-1 text-center text-sm py-2 rounded-xl
-                           bg-blue-600 text-white hover:bg-blue-500 transition"
+                className="flex-1 text-center text-xs font-semibold py-2 rounded-xl bg-blue-600 text-white hover:bg-blue-500 transition"
               >
                 Live ↗
               </a>
             </div>
-
           </div>
         ))}
       </div>

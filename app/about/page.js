@@ -1,15 +1,12 @@
 export default function About() {
   return (
-    <div className="min-h-screen px-5 md:px-16 lg:px-32 pt-10 pb-20">
-      <div className="max-w-3xl">
+    <div className="min-h-screen px-5 md:px-16 lg:px-32 pb-20">
+      <div className="max-w-3xl pt-10">
 
         <section className="mb-16 md:mb-20">
           <p className="text-xs uppercase tracking-widest text-blue-400 mb-6">About</p>
 
-          {/* ── Photo + intro side by side on desktop ── */}
           <div className="flex flex-col sm:flex-row items-start gap-8 mb-8">
-
-            {/* Photo */}
             <div className="shrink-0">
               <img
                 src="/vardhan.jpg"
@@ -20,8 +17,6 @@ export default function About() {
                 style={{ width: 120, height: 120 }}
               />
             </div>
-
-            {/* Name + tagline */}
             <div className="pt-1">
               <h1 className="text-2xl font-bold text-white mb-1">Vardhan Doharey</h1>
               <p className="text-sm text-blue-400 mb-3">Full Stack Developer · Digital Marketer</p>
@@ -31,7 +26,6 @@ export default function About() {
             </div>
           </div>
 
-          {/* Bio paragraphs */}
           <div className="space-y-5">
             <p className="text-base md:text-lg leading-relaxed text-[#8892A4]">
               Hey, I&apos;m Vardhan — a Full-Stack Developer and Digital Marketer. I build web applications and help brands grow through content and strategy.
