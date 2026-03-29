@@ -41,7 +41,7 @@ export default function RootLayout({ children }) {
         </header>
 
         {/* ── Page content ── */}
-        <main className="pt-16">{children}</main>
+        <main className="pt-20">{children}</main>
         
         {/* ── Footer ── */}
         <footer className="border-t border-white/[0.06] py-12 px-6">
