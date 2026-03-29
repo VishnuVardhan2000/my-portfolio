@@ -16,6 +16,7 @@ const stack = [
 const projects = [
   {
     name: "VibeBoard",
+    thumb: "/vibeboard-thumb.png",   //thumbnail k liye
     tagline: "Describe your mood. Get an aesthetic universe.",
     desc: "AI-generated color palettes, anime matches, music vibes & Hinglish mood quotes — all from one mood input. Powered by Groq AI + Unsplash.",
     tags: ["Next.js","Groq AI","Tailwind CSS","Unsplash API"],
@@ -158,9 +159,23 @@ export default function Home() {
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
               {projects.map((p, i) => (
-                <div key={i} className="proj-card chip-bg bg-[#0c0c1b] rounded-2xl p-6 flex flex-col gap-4">
-
+                  // ✅ Fixed — "group" added
+                    <div key={i} className="proj-card chip-bg group bg-[#0c0c1b] rounded-2xl p-6 flex flex-col gap-4">
                   {/* Header */}
+                  {/* Thumbnail — only for VibeBoard */}
+                   {p.thumb && (
+                   <div className="rounded-xl overflow-hidden border border-white/[0.07] mb-1">
+                                 <img
+                                 src={p.thumb}
+                                 alt={`${p.name} preview`}
+                                 width={600}
+                                 height={340}
+                                 loading="lazy"
+                                 className="w-full object-cover object-top transition-transform duration-500 group-hover:scale-105"
+                                 style={{ aspectRatio: "16/9" }}
+                               />
+                             </div>
+                             )}
                   <div className="flex items-start justify-between gap-3">
                     <div>
                       <h3 className="text-xl font-bold text-white mb-0.5">{p.name}</h3>
