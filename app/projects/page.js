@@ -56,7 +56,7 @@ export default function ProjectsPage() {
           >
             {/* Badge */}
             {project.badge && (
-              <span className="absolute top-4 right-4 text-xs px-3 py-1 rounded-full
+              <span className="absolute top-4 right-4 text-[11px] font-bold px-3 py-1 rounded-full
                                bg-blue-600 text-white font-semibold">
                 ⭐ {project.badge}
               </span>

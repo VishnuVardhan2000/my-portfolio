@@ -41,8 +41,8 @@ export default function RootLayout({ children }) {
         </header>
 
         {/* ── Page content ── */}
-        <main>{children}</main>
-
+        <main className="pt-16">{children}</main>
+        
         {/* ── Footer ── */}
         <footer className="border-t border-white/[0.06] py-12 px-6">
           <div className="max-w-5xl mx-auto flex flex-col items-center gap-6">

@@ -129,7 +129,7 @@ export default function Home() {
         <div className="fixed top-[-200px] left-[-100px] w-[600px] h-[600px] bg-blue-700/[0.07] rounded-full blur-[180px] pointer-events-none" />
         <div className="fixed bottom-[-150px] right-[-100px] w-[500px] h-[500px] bg-purple-700/[0.06] rounded-full blur-[160px] pointer-events-none" />
 
-        <div className="max-w-5xl mx-auto px-6 pt-32 pb-24 relative z-10">
+        <div className="max-w-5xl mx-auto px-6 pt-16 pb-24 relative z-10">
           <section className="mb-20">
             <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-green-500/10 border border-green-500/20 text-green-400 text-xs font-medium mb-8 tracking-wide">
               <span className="w-1.5 h-1.5 rounded-full bg-green-400 blink" />
