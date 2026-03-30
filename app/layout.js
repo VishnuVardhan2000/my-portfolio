@@ -47,7 +47,7 @@ export default function RootLayout({ children }) {
         
         {/* ── Footer ── */}
         <footer className="border-t border-white/[0.06] py-12 px-6">
-          <div className="max-w-5xl mx-auto flex flex-col items-center gap-6">
+          <div className="max-w-5xl mx-auto flex flex-col items-center text-center gap-6">
 
             <p className="text-white font-semibold text-base tracking-wide">
               Vardhan Doharey.
