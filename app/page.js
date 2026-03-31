@@ -2,9 +2,9 @@
 import Link from "next/link";
 
 const stats = [
-  { value: "2+", label: "Projects Shipped" },
-  { value: "2", label: "APIs Integrated" },
-  { value: "1", label: "Live AI App" },
+  { value: "3+", label: "Projects Shipped" },
+  { value: "3", label: "APIs Integrated" },
+  { value: "2", label: "Live AI Apps" },
   { value: "∞", label: "Curiosity" },
 ];
 
@@ -35,11 +35,12 @@ const projects = [
   },
   {
     name: "Vish.AI",
-    tagline: "Paste a JD. Get a hire-ready resume.",
-    desc: "AI-powered resume analyzer — paste any job description, get an ATS score, keyword gaps, and an instant tailored rewrite.",
+    tagline: "Paste your resume. Get an ATS score instantly.",
+    desc: "AI-powered resume analyzer — get an ATS score, section breakdown, keyword gaps, and actionable suggestions. Upload PDF or paste text. Powered by Groq Llama 3.3 70B.",
     tags: ["Next.js", "Groq AI", "React", "Node.js"],
     badge: "AI · Live",
-    live: "https://yourdomain.vercel.app/vish-ai",
+    glow: "45,212,191",
+    live: "https://my-portfolio-lemon-nine-24.vercel.app/vish-ai",
     github: "https://github.com/VishnuVardhan2000/my-portfolio",
   },
 ];
@@ -129,6 +130,8 @@ export default function Home() {
         <div className="fixed bottom-[-150px] right-[-100px] w-[500px] h-[500px] bg-purple-700/[0.06] rounded-full blur-[160px] pointer-events-none" />
 
         <div className="max-w-5xl mx-auto px-6 pt-16 pb-24 relative z-10">
+
+          {/* ── Hero ── */}
           <section className="mb-20">
             <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-green-500/10 border border-green-500/20 text-green-400 text-xs font-medium mb-8 tracking-wide">
               <span className="w-1.5 h-1.5 rounded-full bg-green-400 blink" />
@@ -174,6 +177,7 @@ export default function Home() {
             </div>
           </section>
 
+          {/* ── Stats ── */}
           <section className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-20">
             {stats.map((s, i) => (
               <div
@@ -186,6 +190,7 @@ export default function Home() {
             ))}
           </section>
 
+          {/* ── Selected Projects ── */}
           <section className="mb-20">
             <p className="text-xs uppercase tracking-widest text-gray-600 mb-6 font-medium">
               Selected Projects
@@ -286,6 +291,7 @@ export default function Home() {
             </div>
           </section>
 
+          {/* ── Tech Stack ── */}
           <section className="mb-20">
             <p className="text-xs uppercase tracking-widest text-gray-600 mb-6 font-medium">
               Tech Stack
@@ -303,13 +309,14 @@ export default function Home() {
             </div>
           </section>
 
+          {/* ── CTA Footer ── */}
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-5 bg-white/[0.02] border border-white/[0.07] rounded-2xl p-6">
             <div>
               <p className="text-xs uppercase tracking-widest text-gray-600 mb-1.5 font-medium">
                 Currently
               </p>
               <p className="text-white font-semibold">
-                Building ResumeAI &amp; deepening Full Stack skills
+                Shipped Vish.AI &mdash; deepening Full Stack &amp; AI skills
               </p>
               <p className="text-gray-500 text-sm mt-1">
                 Physics Wallah Skills — Full Stack Development Specialization
@@ -323,6 +330,7 @@ export default function Home() {
               All Projects →
             </Link>
           </div>
+
         </div>
       </main>
     </>

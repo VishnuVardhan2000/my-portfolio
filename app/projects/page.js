@@ -27,14 +27,14 @@ export default function ProjectsPage() {
       badge: "Featured",
     },
     {
-  title: "Vish.AI — Resume Analyzer",
-  description:
-    "AI-powered resume analyzer — paste your resume and get an ATS score, keyword gaps, section-by-section feedback, and actionable suggestions. Powered by Groq Llama 3.3.",
-  tech: ["Next.js", "Groq AI", "React", "Node.js"],
-  github: "https://github.com/VishnuVardhan2000/my-portfolio",
-  live: "/vish-ai",
-  badge: "Featured",
-   },
+      title: "Vish.AI — Resume Analyzer",
+      description:
+        "AI-powered resume analyzer — paste your resume or upload a PDF and get an ATS score, section breakdown, keyword gaps, and actionable suggestions. Powered by Groq Llama 3.3 70B.",
+      tech: ["Next.js", "Groq AI", "React", "Node.js"],
+      github: "https://github.com/VishnuVardhan2000/my-portfolio",
+      live: "https://my-portfolio-lemon-nine-24.vercel.app/vish-ai",
+      badge: "Featured",
+    },
   ];
 
   return (
