@@ -1,86 +1,55 @@
-import { NextResponse } from 'next/server';
+import Groq from "groq-sdk";
 
-export async function POST(request) {
+const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
+
+export async function POST(req) {
   try {
-    const { resume, jobDescription, mode } = await request.json();
+    const { mode, resumeText, jobDescription } = await req.json();
 
-    if (!resume?.trim()) {
-      return NextResponse.json({ error: 'Resume is required' }, { status: 400 });
+    if (!resumeText || resumeText.trim().length < 50) {
+      return Response.json(
+        { error: "Please provide a valid resume text (minimum 50 characters)." },
+        { status: 400 }
+      );
     }
 
-    const isMatch = mode === 'match' && jobDescription?.trim();
+    let systemPrompt = "";
+    let userPrompt = "";
 
-    const prompt = isMatch
-      ? `You are an expert ATS and career coach. Analyze this resume against the job description. Return ONLY valid JSON, no markdown, no explanation.
+    if (mode === "analyze") {
+      systemPrompt = `You are Vish.AI, an expert resume analyst and ATS optimization specialist with 15+ years of experience in talent acquisition at top tech companies. You analyze resumes with precision, actionable feedback, and honest scoring. Always respond in structured markdown. Be specific — never give generic advice.`;
 
-Resume:
-${resume}
+      userPrompt = `Analyze the following resume thoroughly and provide a comprehensive ATS report.
 
-Job Description:
-${jobDescription}
+RESUME:
+${resumeText}
 
-Return exactly this JSON:
-{
-  "ats_score": <0-100, match percentage>,
-  "summary": "<2-3 sentence match overview>",
-  "strengths": ["<strength 1>", "<strength 2>", "<strength 3>"],
-  "weaknesses": ["<gap 1>", "<gap 2>", "<gap 3>"],
-  "missing_keywords": ["<keyword 1>", "<keyword 2>"],
-  "suggestions": ["<suggestion 1>", "<suggestion 2>", "<suggestion 3>", "<suggestion 4>", "<suggestion 5>"],
-  "section_scores": { "experience": <0-100>, "skills": <0-100>, "education": <0-100>, "formatting": <0-100> }
-}`
-      : `You are an expert ATS and career coach. Analyze this resume. Return ONLY valid JSON, no markdown, no explanation.
+Provide your analysis in this EXACT markdown structure (do not skip any section):
 
-Resume:
-${resume}
+## Overall ATS Score: [X/100]
 
-Return exactly this JSON:
-{
-  "ats_score": <0-100, overall ATS score>,
-  "summary": "<2-3 sentence overview>",
-  "strengths": ["<strength 1>", "<strength 2>", "<strength 3>"],
-  "weaknesses": ["<weakness 1>", "<weakness 2>", "<weakness 3>"],
-  "missing_keywords": ["<keyword 1>", "<keyword 2>"],
-  "suggestions": ["<suggestion 1>", "<suggestion 2>", "<suggestion 3>", "<suggestion 4>", "<suggestion 5>"],
-  "section_scores": { "experience": <0-100>, "skills": <0-100>, "education": <0-100>, "formatting": <0-100> }
-}`;
+### Section Scores
+| Section | Score | Status |
+|---|---|---|
+| Professional Summary | X/10 | ✅ Strong / ⚠️ Needs Work / ❌ Weak |
+| Work Experience | X/10 | ✅ Strong / ⚠️ Needs Work / ❌ Weak |
+| Skills | X/10 | ✅ Strong / ⚠️ Needs Work / ❌ Weak |
+| Projects | X/10 | ✅ Strong / ⚠️ Needs Work / ❌ Weak |
+| Education | X/10 | ✅ Strong / ⚠️ Needs Work / ❌ Weak |
+| Formatting & ATS | X/10 | ✅ Strong / ⚠️ Needs Work / ❌ Weak |
 
-    const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${process.env.GROQ_API_KEY}`,
-      },
-      body: JSON.stringify({
-        model: 'llama-3.3-70b-versatile',
-        messages: [
-          {
-            role: 'system',
-            content: 'You are an expert resume analyzer. Always respond with valid raw JSON only — no markdown, no code blocks, no extra text.',
-          },
-          { role: 'user', content: prompt },
-        ],
-        temperature: 0.3,
-        max_tokens: 1500,
-      }),
-    });
+### ✅ Strengths
+- (3-5 specific strengths with context from the resume)
 
-    if (!response.ok) {
-      const err = await response.json();
-      throw new Error(err.error?.message || 'Groq API error');
-    }
+### ⚠️ Action Verb Analysis
+- (Check if bullet points start with strong action verbs like "Led", "Built", "Reduced", "Increased", "Designed", "Implemented". List weak or passive phrases found and suggest replacements. Example: "Responsible for managing" → "Managed")
 
-    const groqData = await response.json();
-    const raw = groqData.choices[0].message.content.trim()
-      .replace(/^```json\n?/, '').replace(/\n?```$/, '').trim();
+### 🔧 Areas to Improve
+- (3-5 specific, actionable improvement points with examples)
 
-    try {
-      return NextResponse.json(JSON.parse(raw));
-    } catch {
-      return NextResponse.json({ error: 'Failed to parse analysis. Try again.' }, { status: 500 });
-    }
-  } catch (error) {
-    console.error('Analyze API error:', error);
-    return NextResponse.json({ error: error.message || 'Analysis failed' }, { status: 500 });
-  }
-}
+### 🎯 Missing Keywords
+- (List 5-8 high-value industry keywords missing from this resume that ATS systems look for)
+
+### 💡 Suggestions
+- (3-5 concrete suggestions to immediately strengthen this resume)
+
