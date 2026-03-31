@@ -34,14 +34,13 @@ const projects = [
     github: "https://github.com/VishnuVardhan2000/vibeboard",
   },
   {
-    name: "ResumeAI",
+    name: "Vish.AI",
     tagline: "Paste a JD. Get a hire-ready resume.",
     desc: "AI-powered resume analyzer — paste any job description, get an ATS score, keyword gaps, and an instant tailored rewrite.",
     tags: ["Next.js", "Groq AI", "React", "Node.js"],
-    badge: "AI · Coming Soon",
-    glow: "59,130,246",
-    live: null,
-    github: null,
+    badge: "AI · Live",
+    live: "https://yourdomain.vercel.app/vish-ai",
+    github: "https://github.com/VishnuVardhan2000/my-portfolio",
   },
 ];
 

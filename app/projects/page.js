@@ -26,6 +26,15 @@ export default function ProjectsPage() {
       live: "https://taskflow-sand-gamma.vercel.app",
       badge: "Featured",
     },
+    {
+  title: "Vish.AI — Resume Analyzer",
+  description:
+    "AI-powered resume analyzer — paste your resume and get an ATS score, keyword gaps, section-by-section feedback, and actionable suggestions. Powered by Groq Llama 3.3.",
+  tech: ["Next.js", "Groq AI", "React", "Node.js"],
+  github: "https://github.com/VishnuVardhan2000/my-portfolio",
+  live: "/vish-ai",
+  badge: "Featured",
+   },
   ];
 
   return (
