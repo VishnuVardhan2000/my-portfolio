@@ -1,15 +1,21 @@
 "use client";
 
-import { useState, useRef, useCallback } from "react";
+import { useState, useRef, useCallback, useEffect } from "react";
 
 async function extractTextFromPDF(file) {
-  const pdfjsLib = await import("pdfjs-dist/legacy/build/pdf");
-  pdfjsLib.GlobalWorkerOptions.workerSrc =
-    "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/" +
-    pdfjsLib.version +
-    "/pdf.worker.min.js";
+  if (!window.pdfjsLib) {
+    await new Promise((resolve, reject) => {
+      const script = document.createElement("script");
+      script.src = "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js";
+      script.onload = resolve;
+      script.onerror = reject;
+      document.head.appendChild(script);
+    });
+    window.pdfjsLib.GlobalWorkerOptions.workerSrc =
+      "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
+  }
   const arrayBuffer = await file.arrayBuffer();
-  const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+  const pdf = await window.pdfjsLib.getDocument({ data: arrayBuffer }).promise;
   let fullText = "";
   for (let i = 1; i <= pdf.numPages; i++) {
     const page = await pdf.getPage(i);
@@ -76,6 +82,43 @@ function ScoreRing({ score, size = 110 }) {
   );
 }
 
+// ── ModeToggle Component ──
+function ModeToggle({ mode, onChange }) {
+  const analyzeRef = useRef(null);
+  const matchRef = useRef(null);
+  const [sliderStyle, setSliderStyle] = useState({ width: "0px", transform: "translateX(0px)" });
+
+  useEffect(() => {
+    const el = mode === "analyze" ? analyzeRef.current : matchRef.current;
+    if (el) {
+      setSliderStyle({
+        width: el.offsetWidth + "px",
+        transform: `translateX(${el.offsetLeft - 5}px)`,
+      });
+    }
+  }, [mode]);
+
+  return (
+    <div className="mode-toggle-wrap">
+      <div className="mode-slider-bg" style={sliderStyle} />
+      <button
+        ref={analyzeRef}
+        className={"mode-toggle-btn " + (mode === "analyze" ? "mode-toggle-btn-active" : "mode-toggle-btn-inactive")}
+        onClick={() => onChange("analyze")}
+      >
+        📄 Resume Analysis
+      </button>
+      <button
+        ref={matchRef}
+        className={"mode-toggle-btn " + (mode === "match" ? "mode-toggle-btn-active" : "mode-toggle-btn-inactive")}
+        onClick={() => onChange("match")}
+      >
+        🎯 Job Match
+      </button>
+    </div>
+  );
+}
+
 export default function VishAI() {
   const [mode, setMode] = useState("analyze");
   const [inputTab, setInputTab] = useState("paste");
@@ -87,6 +130,7 @@ export default function VishAI() {
   const [pdfFile, setPdfFile] = useState(null);
   const [pdfLoading, setPdfLoading] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
+  const [copied, setCopied] = useState(false);
 
   const fileInputRef = useRef(null);
   const resultRef = useRef(null);
@@ -154,6 +198,23 @@ export default function VishAI() {
     setError("");
     setPdfFile(null);
     setInputTab("paste");
+    setCopied(false);
+  };
+
+  const handleCopy = () => {
+    navigator.clipboard.writeText(result);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
+
+  const handleDownload = () => {
+    const blob = new Blob([result], { type: "text/plain" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = mode === "analyze" ? "resume-analysis-vish-ai.txt" : "job-match-report-vish-ai.txt";
+    a.click();
+    URL.revokeObjectURL(url);
   };
 
   const extractScore = (text) => {
@@ -171,52 +232,53 @@ export default function VishAI() {
   return (
     <>
       <style>{`
-      /* ── #9 Fizzy Download Button ── */
-.btn-fizzy {
-  position: relative;
-  padding: 9px 20px;
-  font-size: 13px;
-  font-weight: 600;
-  color: #2dd4bf;
-  background: rgba(45,212,191,0.08);
-  border: 1px solid rgba(45,212,191,0.3);
-  border-radius: 9px;
-  cursor: pointer;
-  overflow: hidden;
-  transition: background 0.3s, color 0.3s, border-color 0.3s, transform 0.15s;
-  display: flex;
-  align-items: center;
-  gap: 6px;
-}
-.btn-fizzy:hover {
-  background: rgba(45,212,191,0.18);
-  border-color: rgba(45,212,191,0.6);
-  transform: translateY(-2px);
-  color: #5eead4;
-}
-.btn-fizzy .fizz {
-  position: absolute;
-  bottom: 0;
-  left: 50%;
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  background: #2dd4bf;
-  opacity: 0;
-  pointer-events: none;
-  transform: translateX(-50%);
-}
-.btn-fizzy:hover .fizz { animation: fizzy-pop 0.8s ease-out forwards; }
-.btn-fizzy:hover .fizz:nth-child(2) { left: 30%; animation-delay: 0.08s; width: 4px; height: 4px; }
-.btn-fizzy:hover .fizz:nth-child(3) { left: 70%; animation-delay: 0.15s; width: 5px; height: 5px; }
-.btn-fizzy:hover .fizz:nth-child(4) { left: 20%; animation-delay: 0.22s; width: 3px; height: 3px; }
-.btn-fizzy:hover .fizz:nth-child(5) { left: 80%; animation-delay: 0.1s;  width: 4px; height: 4px; }
-.btn-fizzy:hover .fizz:nth-child(6) { left: 45%; animation-delay: 0.18s; width: 5px; height: 5px; }
-@keyframes fizzy-pop {
-  0%   { opacity: 1; transform: translateX(-50%) translateY(0)    scale(1); }
-  100% { opacity: 0; transform: translateX(-50%) translateY(-28px) scale(0.3); }
+        /* ── Fizzy Download Button ── */
+        .btn-fizzy {
+          position: relative;
+          padding: 9px 20px;
+          font-size: 13px;
+          font-weight: 600;
+          color: #2dd4bf;
+          background: rgba(45,212,191,0.08);
+          border: 1px solid rgba(45,212,191,0.3);
+          border-radius: 9px;
+          cursor: pointer;
+          overflow: hidden;
+          transition: background 0.3s, color 0.3s, border-color 0.3s, transform 0.15s;
+          display: flex;
+          align-items: center;
+          gap: 6px;
         }
-        /* ── Glow Analyze Button (#22 inspired) ── */
+        .btn-fizzy:hover {
+          background: rgba(45,212,191,0.18);
+          border-color: rgba(45,212,191,0.6);
+          transform: translateY(-2px);
+          color: #5eead4;
+        }
+        .btn-fizzy .fizz {
+          position: absolute;
+          bottom: 0;
+          left: 50%;
+          width: 6px;
+          height: 6px;
+          border-radius: 50%;
+          background: #2dd4bf;
+          opacity: 0;
+          pointer-events: none;
+          transform: translateX(-50%);
+        }
+        .btn-fizzy:hover .fizz { animation: fizzy-pop 0.8s ease-out forwards; }
+        .btn-fizzy:hover .fizz:nth-child(2) { left: 30%; animation-delay: 0.08s; width: 4px; height: 4px; }
+        .btn-fizzy:hover .fizz:nth-child(3) { left: 70%; animation-delay: 0.15s; width: 5px; height: 5px; }
+        .btn-fizzy:hover .fizz:nth-child(4) { left: 20%; animation-delay: 0.22s; width: 3px; height: 3px; }
+        .btn-fizzy:hover .fizz:nth-child(5) { left: 80%; animation-delay: 0.1s;  width: 4px; height: 4px; }
+        .btn-fizzy:hover .fizz:nth-child(6) { left: 45%; animation-delay: 0.18s; width: 5px; height: 5px; }
+        @keyframes fizzy-pop {
+          0%   { opacity: 1; transform: translateX(-50%) translateY(0) scale(1); }
+          100% { opacity: 0; transform: translateX(-50%) translateY(-28px) scale(0.3); }
+        }
+
+        /* ── Glow Analyze Button ── */
         .btn-glow {
           position: relative;
           padding: 12px 28px;
@@ -246,14 +308,9 @@ export default function VishAI() {
           transform: translateY(-1px);
         }
         .btn-glow:active { transform: translateY(0); }
-        .btn-glow:disabled {
-          opacity: 0.45;
-          cursor: not-allowed;
-          box-shadow: none;
-          transform: none;
-        }
+        .btn-glow:disabled { opacity: 0.45; cursor: not-allowed; box-shadow: none; transform: none; }
 
-        /* ── Swipe Fill Reset Button (#18 inspired) ── */
+        /* ── Swipe Fill Button ── */
         .btn-swipe {
           position: relative;
           padding: 12px 28px;
@@ -280,47 +337,48 @@ export default function VishAI() {
         .btn-swipe:hover { color: #e2e8f0; border-color: rgba(148,163,184,0.6); }
         .btn-swipe span { position: relative; z-index: 1; }
 
-        /* ── Flip Mode Toggle Buttons (#17 inspired) ── */
-        .btn-mode {
+        /* ── Magnetic Sliding Mode Toggle ── */
+        .mode-toggle-wrap {
           position: relative;
-          padding: 10px 20px;
+          display: inline-flex;
+          background: rgba(255,255,255,0.04);
+          border: 1px solid rgba(255,255,255,0.08);
+          border-radius: 12px;
+          padding: 5px;
+          gap: 0;
+        }
+        .mode-slider-bg {
+          position: absolute;
+          top: 5px;
+          left: 5px;
+          height: calc(100% - 10px);
+          border-radius: 8px;
+          background: #2dd4bf;
+          box-shadow: 0 0 16px rgba(45,212,191,0.35);
+          transition: transform 0.42s cubic-bezier(0.34,1.56,0.64,1),
+                      width 0.42s cubic-bezier(0.34,1.56,0.64,1);
+          pointer-events: none;
+          z-index: 0;
+        }
+        .mode-toggle-btn {
+          position: relative;
+          z-index: 1;
+          padding: 10px 22px;
           font-size: 13px;
           font-weight: 600;
-          border-radius: 9px;
           border: none;
-          cursor: pointer;
-          overflow: hidden;
-          transition: color 0.3s;
           background: transparent;
-        }
-        .btn-mode .btn-front,
-        .btn-mode .btn-back {
-          display: block;
-          transition: transform 0.35s cubic-bezier(0.16,1,0.3,1), opacity 0.35s;
-          position: relative;
-        }
-        .btn-mode .btn-back {
-          position: absolute;
-          inset: 0;
+          border-radius: 8px;
+          cursor: pointer;
+          transition: color 0.3s;
+          white-space: nowrap;
           display: flex;
           align-items: center;
-          justify-content: center;
-          transform: translateY(100%);
-          opacity: 0;
+          gap: 6px;
         }
-        .btn-mode:hover .btn-front { transform: translateY(-100%); opacity: 0; }
-        .btn-mode:hover .btn-back  { transform: translateY(0); opacity: 1; }
-        .btn-mode-inactive {
-          color: #64748b;
-          border: 1.5px solid rgba(100,116,139,0.2);
-        }
-        .btn-mode-inactive:hover { color: #94a3b8; border-color: rgba(100,116,139,0.4); }
-        .btn-mode-active {
-          color: #0a0a12;
-          background: #2dd4bf;
-          border: 1.5px solid #2dd4bf;
-        }
-        .btn-mode-active:hover { background: #5eead4; border-color: #5eead4; }
+        .mode-toggle-btn-active   { color: #0a0a12; }
+        .mode-toggle-btn-inactive { color: #475569; }
+        .mode-toggle-btn-inactive:hover { color: #94a3b8; }
 
         /* ── Sliding Pill Tab Switcher ── */
         .tab-switcher {
@@ -362,7 +420,7 @@ export default function VishAI() {
         .tab-btn-inactive{ color: #475569; }
         .tab-btn-inactive:hover { color: #94a3b8; }
 
-        /* ── Pulse Upload Button (#8 inspired) ── */
+        /* ── Pulse Upload Button ── */
         .btn-pulse {
           position: relative;
           padding: 12px 28px;
@@ -391,15 +449,11 @@ export default function VishAI() {
           0%   { transform: scale(1);   opacity: 0.6; }
           100% { transform: scale(1.3); opacity: 0; }
         }
-        .btn-pulse:hover {
-          background: #2dd4bf;
-          color: #0a0a12;
-          transform: translateY(-2px);
-        }
+        .btn-pulse:hover { background: #2dd4bf; color: #0a0a12; transform: translateY(-2px); }
         .btn-pulse:hover::before,
         .btn-pulse:hover::after { animation: none; opacity: 0; }
 
-        /* ── Copy button ── */
+        /* ── Copy Button ── */
         .btn-outline-sm {
           padding: 8px 18px;
           font-size: 13px;
@@ -416,6 +470,11 @@ export default function VishAI() {
           border-color: rgba(100,116,139,0.5);
           background: rgba(100,116,139,0.08);
         }
+        .btn-outline-sm-copied {
+          color: #2dd4bf;
+          border-color: rgba(45,212,191,0.4);
+          background: rgba(45,212,191,0.08);
+        }
 
         @keyframes fadeUp { from{opacity:0;transform:translateY(14px)} to{opacity:1;transform:translateY(0)} }
         .fade-up { animation: fadeUp 0.45s cubic-bezier(0.16,1,0.3,1) both; }
@@ -429,7 +488,7 @@ export default function VishAI() {
           <div className="absolute bottom-0 right-1/4 h-96 w-96 rounded-full bg-blue-500/8 blur-3xl" />
         </div>
 
-        {/* ── Hero ── */}
+        {/* Hero */}
         <section className="max-w-6xl mx-auto px-6 pt-16 pb-8 relative z-10">
           <div className="text-center max-w-3xl mx-auto">
             <div className="inline-flex items-center gap-2 rounded-full border border-teal-500/20 bg-teal-500/10 px-4 py-1.5 text-xs text-teal-400 mb-5">
@@ -445,7 +504,7 @@ export default function VishAI() {
           </div>
         </section>
 
-        {/* ── How it works ── */}
+        {/* How it works */}
         <section className="max-w-6xl mx-auto px-6 py-16 relative z-10">
           <div className="flex justify-center mb-10">
             <div className="h-1 w-28 rounded-full bg-amber-500" />
@@ -493,29 +552,16 @@ export default function VishAI() {
           </div>
         </section>
 
-        {/* ── Main Card ── */}
+        {/* Main Card */}
         <section className="max-w-5xl mx-auto px-6 pb-20 relative z-10">
           <div className="rounded-2xl border border-slate-800 bg-slate-900/60 backdrop-blur-md p-6 md:p-8 shadow-2xl">
 
-            {/* Mode toggle — Flip buttons */}
-            <div className="flex flex-wrap gap-3 mb-7">
-              <button
-                onClick={() => { setMode("analyze"); setError(""); }}
-                className={"btn-mode " + (mode === "analyze" ? "btn-mode-active" : "btn-mode-inactive")}
-              >
-                <span className="btn-front">📄 Resume Analysis</span>
-                <span className="btn-back">📄 Resume Analysis</span>
-              </button>
-              <button
-                onClick={() => { setMode("match"); setError(""); }}
-                className={"btn-mode " + (mode === "match" ? "btn-mode-active" : "btn-mode-inactive")}
-              >
-                <span className="btn-front">🎯 Job Match</span>
-                <span className="btn-back">🎯 Job Match</span>
-              </button>
+            {/* Mode toggle — Magnetic Sliding */}
+            <div className="mb-7">
+              <ModeToggle mode={mode} onChange={(m) => { setMode(m); setError(""); }} />
             </div>
 
-            {/* Input tab — Sliding pill switcher */}
+            {/* Input tab */}
             <div className="mb-6">
               <div className="tab-switcher">
                 <div className={"tab-pill " + (inputTab === "paste" ? "tab-pill-paste" : "tab-pill-pdf")} />
@@ -581,11 +627,7 @@ export default function VishAI() {
                           <p className="text-base font-medium text-slate-300 mb-1">Drag and drop your PDF here</p>
                           <p className="text-slate-500 text-sm">or click the button below to browse</p>
                         </div>
-                        {/* Pulse button for browse */}
-                        <button
-                          onClick={() => fileInputRef.current?.click()}
-                          className="btn-pulse"
-                        >
+                        <button onClick={() => fileInputRef.current?.click()} className="btn-pulse">
                           Browse PDF File
                         </button>
                         <p className="text-slate-600 text-xs">PDF only · Max 10MB</p>
@@ -599,10 +641,7 @@ export default function VishAI() {
                     <p className="text-sm text-slate-500 mt-1">
                       {pdfFile.pages} page{pdfFile.pages > 1 ? "s" : ""} · Text extracted successfully
                     </p>
-                    <button
-                      onClick={() => { setPdfFile(null); setResumeText(""); }}
-                      className="mt-5 btn-swipe"
-                    >
+                    <button onClick={() => { setPdfFile(null); setResumeText(""); }} className="mt-5 btn-swipe">
                       <span>Remove file</span>
                     </button>
                   </div>
@@ -637,11 +676,7 @@ export default function VishAI() {
 
             {/* Action buttons */}
             <div className="flex flex-wrap gap-3 items-center">
-              <button
-                onClick={handleAnalyze}
-                disabled={loading || pdfLoading}
-                className="btn-glow"
-              >
+              <button onClick={handleAnalyze} disabled={loading || pdfLoading} className="btn-glow">
                 {loading ? (
                   <span className="flex items-center gap-2">
                     <svg className="animate-spin w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -651,7 +686,6 @@ export default function VishAI() {
                   </span>
                 ) : mode === "analyze" ? "⚡ Analyze My Resume" : "🎯 Check Job Match"}
               </button>
-
               <button onClick={handleReset} className="btn-swipe">
                 <span>↺ Reset</span>
               </button>
@@ -668,11 +702,7 @@ export default function VishAI() {
                 </div>
                 <div className="space-y-3">
                   {[100, 83, 92, 66, 75].map((w, i) => (
-                    <div
-                      key={i}
-                      className="h-3 rounded-full bg-slate-800 animate-pulse"
-                      style={{ width: w + "%", animationDelay: i * 80 + "ms" }}
-                    />
+                    <div key={i} className="h-3 rounded-full bg-slate-800 animate-pulse" style={{ width: w + "%", animationDelay: i * 80 + "ms" }} />
                   ))}
                 </div>
               </div>
@@ -680,7 +710,7 @@ export default function VishAI() {
           </div>
         </section>
 
-        {/* ── Results ── */}
+        {/* Results */}
         {result && !loading && (
           <section ref={resultRef} className="max-w-5xl mx-auto px-6 pb-24 relative z-10 fade-up">
             <div className="rounded-2xl border border-slate-800 bg-slate-900/60 backdrop-blur-md p-6 md:p-8">
@@ -694,9 +724,26 @@ export default function VishAI() {
                     <h2 className="text-2xl font-bold text-white">{scoreLabel}</h2>
                   </div>
                 </div>
-                <div className="flex gap-3">
-                  <button onClick={() => navigator.clipboard.writeText(result)} className="btn-outline-sm">
-                    Copy Report
+                <div className="flex flex-wrap gap-3">
+                  <button
+                    onClick={handleCopy}
+                    className={"btn-outline-sm " + (copied ? "btn-outline-sm-copied" : "")}
+                  >
+                    {copied ? "✓ Copied!" : "Copy Report"}
+                  </button>
+                  <button onClick={handleDownload} className="btn-fizzy">
+                    <span className="fizz" />
+                    <span className="fizz" />
+                    <span className="fizz" />
+                    <span className="fizz" />
+                    <span className="fizz" />
+                    <span className="fizz" />
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                      <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                      <polyline points="7 10 12 15 17 10"/>
+                      <line x1="12" y1="15" x2="12" y2="3"/>
+                    </svg>
+                    Download Report
                   </button>
                   <button onClick={handleReset} className="btn-glow">
                     Analyze Another
