@@ -171,6 +171,51 @@ export default function VishAI() {
   return (
     <>
       <style>{`
+      /* ── #9 Fizzy Download Button ── */
+.btn-fizzy {
+  position: relative;
+  padding: 9px 20px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #2dd4bf;
+  background: rgba(45,212,191,0.08);
+  border: 1px solid rgba(45,212,191,0.3);
+  border-radius: 9px;
+  cursor: pointer;
+  overflow: hidden;
+  transition: background 0.3s, color 0.3s, border-color 0.3s, transform 0.15s;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.btn-fizzy:hover {
+  background: rgba(45,212,191,0.18);
+  border-color: rgba(45,212,191,0.6);
+  transform: translateY(-2px);
+  color: #5eead4;
+}
+.btn-fizzy .fizz {
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #2dd4bf;
+  opacity: 0;
+  pointer-events: none;
+  transform: translateX(-50%);
+}
+.btn-fizzy:hover .fizz { animation: fizzy-pop 0.8s ease-out forwards; }
+.btn-fizzy:hover .fizz:nth-child(2) { left: 30%; animation-delay: 0.08s; width: 4px; height: 4px; }
+.btn-fizzy:hover .fizz:nth-child(3) { left: 70%; animation-delay: 0.15s; width: 5px; height: 5px; }
+.btn-fizzy:hover .fizz:nth-child(4) { left: 20%; animation-delay: 0.22s; width: 3px; height: 3px; }
+.btn-fizzy:hover .fizz:nth-child(5) { left: 80%; animation-delay: 0.1s;  width: 4px; height: 4px; }
+.btn-fizzy:hover .fizz:nth-child(6) { left: 45%; animation-delay: 0.18s; width: 5px; height: 5px; }
+@keyframes fizzy-pop {
+  0%   { opacity: 1; transform: translateX(-50%) translateY(0)    scale(1); }
+  100% { opacity: 0; transform: translateX(-50%) translateY(-28px) scale(0.3); }
+        }
         /* ── Glow Analyze Button (#22 inspired) ── */
         .btn-glow {
           position: relative;
