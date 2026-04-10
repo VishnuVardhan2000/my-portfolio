@@ -35,6 +35,7 @@ const projects = [
   },
   {
     name: "Vish.AI",
+    thumb: "/vish-ai-thumb.png", 
     tagline: "Paste your resume. Get an ATS score instantly.",
     desc: "AI-powered resume analyzer — get an ATS score, section breakdown, keyword gaps, and actionable suggestions. Upload PDF or paste text. Powered by Groq Llama 3.3 70B.",
     tags: ["Next.js", "Groq AI", "React", "Node.js"],
