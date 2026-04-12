@@ -49,18 +49,15 @@ export default function ProjectsPage() {
         </p>
       </div>
 
-      <div className="grid gap-8 pb-10"
-           style={{
-             gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))',
-          justifyContent: 'center'
-          }}>
-        {projects.map((project, index) => (
-          <div
-            key={index}
-            className="bg-white/5 border border-white/10 rounded-2xl p-6
-                       hover:border-blue-500/50 hover:bg-white/10
-                       transition-all duration-300 flex flex-col gap-4 relative"
-          >
+      <div className="flex flex-wrap gap-8 pb-10 justify-center">
+            {projects.map((project, index) => (
+              <div
+                key={index}
+                className="bg-white/5 border border-white/10 rounded-2xl p-6
+                           hover:border-blue-500/50 hover:bg-white/10
+                           transition-all duration-300 flex flex-col gap-4 relative"
+                style={{ width: 'clamp(300px, 30%, 380px)' }}
+              >
             {project.badge && (
               <span className="absolute top-4 right-4 text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-blue-600 text-white tracking-wide">
                 ⭐ {project.badge}
