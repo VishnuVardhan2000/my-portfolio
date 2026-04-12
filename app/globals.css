@@ -130,3 +130,25 @@ main {
 .spotlight-inner {
   display: none;
 }
+/* ══════════════════════════════════════════
+   RPG × ISEKAI × HACKER — About Page
+══════════════════════════════════════════ */
+
+.scanlines {
+  background: repeating-linear-gradient(
+    to bottom,
+    transparent 0px,
+    transparent 3px,
+    rgba(0, 0, 0, 0.08) 3px,
+    rgba(0, 0, 0, 0.08) 4px
+  );
+}
+
+.boot-line {
+  animation: bootFadeIn 0.3s ease forwards;
+}
+
+@keyframes bootFadeIn {
+  from { opacity: 0; transform: translateX(-8px); }
+  to   { opacity: 1; transform: translateX(0);    }
+}

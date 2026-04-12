@@ -1,87 +1,332 @@
-export default function About() {
+"use client";
+import { useEffect, useRef, useState, useCallback } from "react";
+
+const PLAYER = {
+  name: "Vardhan Doharey",
+  class: "Full Stack Developer",
+  subclass: "AI Enthusiast · Problem Solver",
+  level: 22,
+  status: "Grinding Side Quests",
+  photo: "/profile.jpg",
+  bio: "Isekai'd into the digital realm with a mission to build things that matter. Exploring the intersection of AI and full-stack development — one side quest at a time.",
+};
+
+const SKILLS = [
+  { name: "React / Next.js",         level: 85, xp: "8,500 XP", color: "96,165,250"  },
+  { name: "JavaScript / TypeScript", level: 80, xp: "8,000 XP", color: "250,204,21"  },
+  { name: "Node.js / Express",       level: 75, xp: "7,500 XP", color: "0,255,136"   },
+  { name: "Tailwind CSS",            level: 90, xp: "9,000 XP", color: "34,211,238"  },
+  { name: "MongoDB",                 level: 70, xp: "7,000 XP", color: "74,222,128"  },
+  { name: "Groq AI / LLM APIs",     level: 72, xp: "7,200 XP", color: "167,139,250" },
+];
+
+const EXPERIENCE = [
+  {
+    company: "Genpact",
+    role: "Process Associate",
+    period: "2023 — 2024",
+    desc: "Handled customer operations and process workflows. Leveled up problem-solving and pressure management skills. Left to pursue the dev path full-time.",
+    tag: "QUEST COMPLETED",
+    tagColor: "236,72,153",
+  },
+];
+
+const EDUCATION = [
+  {
+    degree: "B.Tech — Computer Science (AI / ML)",
+    institute: "SAGE University, Indore",
+    period: "2020 — 2024",
+    detail: "Specialized in Machine Learning and AI. Built CLI tools, Resume Builders, and first full-stack apps here.",
+  },
+];
+
+const ACTIVE_QUESTS = [
+  { quest: "Mastering System Design",     progress: 40, type: "MAIN QUEST" },
+  { quest: "DSA — LeetCode Daily Grind",  progress: 55, type: "MAIN QUEST" },
+  { quest: "Building SaaS Products",      progress: 30, type: "SIDE QUEST" },
+  { quest: "Open Source Contributions",   progress: 15, type: "SIDE QUEST" },
+  { quest: "Learning Three.js / WebGL",   progress: 20, type: "SIDE QUEST" },
+];
+
+const BOOT_LINES = [
+  "> ISEKAI PROTOCOL ACTIVATED...",
+  "> SCANNING DIMENSIONAL FREQUENCY...",
+  "> PLAYER DATA FOUND — LOADING...",
+  "> SKILL TREE SYNCHRONIZED...",
+  "> QUEST LOG INITIALIZED...",
+  "> ALL SYSTEMS NOMINAL.",
+  "> WELCOME, ADVENTURER. ▌",
+];
+
+function BootScreen({ onDone }) {
+  const [lines, setLines] = useState([]);
+  const [fading, setFading] = useState(false);
+
+  useEffect(() => {
+    let i = 0;
+    const tick = setInterval(() => {
+      setLines((p) => [...p, BOOT_LINES[i]]);
+      i++;
+      if (i >= BOOT_LINES.length) {
+        clearInterval(tick);
+        setTimeout(() => {
+          setFading(true);
+          setTimeout(onDone, 600);
+        }, 600);
+      }
+    }, 320);
+    return () => clearInterval(tick);
+  }, [onDone]);
+
   return (
-    <div className="min-h-screen px-5 md:px-16 lg:px-32 pb-25">
-      <div className="max-w-3xl pt-10">
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center bg-[#0a0a12]"
+      style={{ transition: "opacity 0.6s ease", opacity: fading ? 0 : 1, pointerEvents: fading ? "none" : "all" }}
+    >
+      <div className="space-y-2 px-8 max-w-lg w-full">
+        {lines.map((line, i) => (
+          <p
+            key={i}
+            className="font-mono text-sm boot-line"
+            style={{ color: i === lines.length - 1 ? "#00ff88" : "rgba(74,222,128,0.75)" }}
+          >
+            {line}
+          </p>
+        ))}
+      </div>
+    </div>
+  );
+}
 
-        <section className="mb-16 md:mb-20">
-          <p className="text-xs uppercase tracking-widest text-blue-400 mb-6">About</p>
+function RPGFrame({ children, title, accent = "0,255,136" }) {
+  const c = `rgba(${accent},`;
+  return (
+    <div
+      className="relative rounded-xl p-6"
+      style={{
+        border: `1px solid ${c}0.2)`,
+        background: `${c}0.02)`,
+        boxShadow: `0 0 40px ${c}0.04) inset`,
+      }}
+    >
+      <span className="absolute top-[-1px] left-[-1px] w-3 h-3"
+        style={{ borderTop: `2px solid ${c}0.8)`, borderLeft: `2px solid ${c}0.8)`, borderRadius: "2px 0 0 0" }} />
+      <span className="absolute top-[-1px] right-[-1px] w-3 h-3"
+        style={{ borderTop: `2px solid ${c}0.8)`, borderRight: `2px solid ${c}0.8)`, borderRadius: "0 2px 0 0" }} />
+      <span className="absolute bottom-[-1px] left-[-1px] w-3 h-3"
+        style={{ borderBottom: `2px solid ${c}0.8)`, borderLeft: `2px solid ${c}0.8)`, borderRadius: "0 0 0 2px" }} />
+      <span className="absolute bottom-[-1px] right-[-1px] w-3 h-3"
+        style={{ borderBottom: `2px solid ${c}0.8)`, borderRight: `2px solid ${c}0.8)`, borderRadius: "0 0 2px 0" }} />
 
-          <div className="flex flex-col sm:flex-row items-start gap-8 mb-8">
-            <div className="shrink-0">
-              <img
-                src="/vardhan.jpg"
-                alt="Vardhan Doharey"
-                width={120}
-                height={120}
-                className="rounded-2xl object-cover object-center border border-white/[0.08]"
-                style={{ width: 120, height: 120 }}
-              />
+      {title && (
+        <div className="absolute -top-3.5 left-6">
+          <span
+            className="font-mono text-[11px] font-bold tracking-widest px-3 py-0.5 rounded"
+            style={{ color: `rgba(${accent},1)`, background: "#0a0a12", border: `1px solid ${c}0.25)` }}
+          >
+            // {title}
+          </span>
+        </div>
+      )}
+      {children}
+    </div>
+  );
+}
+
+function XPBar({ skill, animate }) {
+  return (
+    <div className="space-y-1.5">
+      <div className="flex items-center justify-between">
+        <span className="text-sm font-mono text-gray-300">{skill.name}</span>
+        <span className="text-xs font-mono" style={{ color: `rgba(${skill.color},0.85)` }}>
+          LV.{Math.floor(skill.level / 10)} &nbsp;·&nbsp; {skill.xp}
+        </span>
+      </div>
+      <div className="h-2 rounded-full overflow-hidden" style={{ background: "rgba(255,255,255,0.05)" }}>
+        <div
+          className="h-full rounded-full"
+          style={{
+            width: animate ? `${skill.level}%` : "0%",
+            background: `linear-gradient(90deg, rgba(${skill.color},0.5), rgba(${skill.color},1))`,
+            boxShadow: `0 0 10px rgba(${skill.color},0.55)`,
+            transition: "width 1.2s cubic-bezier(0.22,1,0.36,1)",
+          }}
+        />
+      </div>
+    </div>
+  );
+}
+
+function QuestBar({ quest }) {
+  const isMain = quest.type === "MAIN QUEST";
+  const color = isMain ? "0,255,136" : "250,204,21";
+  return (
+    <div className="space-y-1.5">
+      <div className="flex items-center justify-between gap-2 flex-wrap">
+        <span className="text-sm font-mono text-gray-300">{quest.quest}</span>
+        <span
+          className="text-[10px] font-mono px-2 py-0.5 rounded border whitespace-nowrap"
+          style={{ color: `rgba(${color},1)`, borderColor: `rgba(${color},0.3)`, background: `rgba(${color},0.08)` }}
+        >
+          {quest.type}
+        </span>
+      </div>
+      <div className="h-1.5 rounded-full overflow-hidden" style={{ background: "rgba(255,255,255,0.05)" }}>
+        <div
+          className="h-full rounded-full"
+          style={{
+            width: `${quest.progress}%`,
+            background: `linear-gradient(90deg, rgba(${color},0.5), rgba(${color},1))`,
+            boxShadow: `0 0 6px rgba(${color},0.4)`,
+          }}
+        />
+      </div>
+      <p className="text-[11px] font-mono text-gray-600">{quest.progress}% complete</p>
+    </div>
+  );
+}
+
+export default function AboutPage() {
+  const [booted, setBooted] = useState(false);
+  const [skillsVisible, setSkillsVisible] = useState(false);
+  const skillsRef = useRef(null);
+  const handleBoot = useCallback(() => setBooted(true), []);
+
+  useEffect(() => {
+    if (!booted || !skillsRef.current) return;
+    const obs = new IntersectionObserver(
+      ([e]) => { if (e.isIntersecting) setSkillsVisible(true); },
+      { threshold: 0.15 }
+    );
+    obs.observe(skillsRef.current);
+    return () => obs.disconnect();
+  }, [booted]);
+
+  return (
+    <>
+      <BootScreen onDone={handleBoot} />
+      <div className="scanlines pointer-events-none fixed inset-0 z-20" />
+
+      <section
+        className="max-w-4xl mx-auto px-4 pt-8 pb-24 space-y-10"
+        style={{ opacity: booted ? 1 : 0, transition: "opacity 0.8s ease" }}
+      >
+
+        {/* ══ HERO ══ */}
+        <RPGFrame title="PLAYER_DATA.EXE" accent="0,255,136">
+          <div className="flex flex-col md:flex-row gap-8 items-center md:items-start pt-3">
+            <div className="relative flex-shrink-0">
+              <div
+                className="w-32 h-32 md:w-36 md:h-36 rounded-xl overflow-hidden"
+                style={{ border: "2px solid rgba(0,255,136,0.35)", boxShadow: "0 0 28px rgba(0,255,136,0.12)" }}
+              >
+                <img
+                  src={PLAYER.photo}
+                  alt={PLAYER.name}
+                  className="w-full h-full object-cover"
+                  onError={(e) => {
+                    e.target.parentNode.innerHTML =
+                      `<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;background:rgba(0,255,136,0.05);font-size:2.5rem">⚔️</div>`;
+                  }}
+                />
+              </div>
+              <span
+                className="absolute -bottom-3 left-1/2 -translate-x-1/2 font-mono text-[10px] px-2 py-0.5 rounded-full whitespace-nowrap"
+                style={{ background: "rgba(0,255,136,0.15)", color: "#00ff88", border: "1px solid rgba(0,255,136,0.3)" }}
+              >
+                ● ONLINE
+              </span>
             </div>
-            <div className="pt-1">
-              <h1 className="text-2xl font-bold text-white mb-1">Vardhan Doharey</h1>
-              <p className="text-sm text-blue-400 mb-3">Full Stack Developer · Digital Marketer</p>
-              <p className="text-sm text-[#8892A4] leading-relaxed">
-                Based in Lucknow, India — building web apps and helping brands grow.
+
+            <div className="flex-1 space-y-3 font-mono text-sm">
+              <div>
+                <p className="text-[10px] tracking-[0.2em] text-green-500/60 uppercase mb-1">&gt; IDENTITY CONFIRMED</p>
+                <h1 className="text-2xl md:text-3xl font-bold text-white" style={{ fontFamily: "var(--font-syne)", letterSpacing: "0.04em" }}>
+                  {PLAYER.name}
+                </h1>
+              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-1.5 text-xs">
+                {[
+                  ["CLASS",    PLAYER.class,           "text-green-400"],
+                  ["SUBCLASS", PLAYER.subclass,        "text-blue-400"],
+                  ["LEVEL",    PLAYER.level,           "text-yellow-400"],
+                  ["STATUS",   PLAYER.status + " ▌",  "text-pink-400"],
+                ].map(([key, val, cls]) => (
+                  <p key={key}>
+                    <span className="text-green-400/60">{key}</span>
+                    <span className="text-gray-500"> : </span>
+                    <span className={cls}>{val}</span>
+                  </p>
+                ))}
+              </div>
+              <p className="text-gray-400 text-xs leading-relaxed pt-2 border-t border-white/5">
+                {PLAYER.bio}
               </p>
             </div>
           </div>
+        </RPGFrame>
 
-          <div className="space-y-5">
-            <p className="text-base md:text-lg leading-relaxed text-[#8892A4]">
-              Hey, I&apos;m Vardhan — a Full-Stack Developer and Digital Marketer. I build web applications and help brands grow through content and strategy.
-            </p>
-            <p className="text-base md:text-lg leading-relaxed text-[#8892A4]">
-              I&apos;m currently sharpening my skills in React, MongoDB and Node.js while working on freelance projects in lead generation, content creation, and web development.
-            </p>
-            <p className="text-base md:text-lg leading-relaxed text-[#8892A4]">
-              When I&apos;m not coding, you&apos;ll find me producing phonk music, watching anime, or experimenting with AI tools.
-            </p>
-          </div>
-        </section>
+        {/* ══ SKILL TREE ══ */}
+        <div ref={skillsRef}>
+          <RPGFrame title="SKILL_TREE.DAT" accent="96,165,250">
+            <div className="space-y-5 pt-3">
+              <p className="font-mono text-[11px] text-blue-400/60 tracking-widest">&gt; LOADING ATTRIBUTES...</p>
+              {SKILLS.map((s, i) => (
+                <XPBar key={i} skill={s} animate={skillsVisible} />
+              ))}
+            </div>
+          </RPGFrame>
+        </div>
 
-        <section className="mb-16 md:mb-20">
-          <p className="text-xs uppercase tracking-widest text-blue-400 mb-6">Skills</p>
-          <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
-            {[
-              "JavaScript", "React", "Node.js", "Next.js",
-              "HTML & CSS", "Tailwind CSS", "Digital Marketing",
-              "Content Creation", "AI Tools", "Git & GitHub",
-            ].map((skill) => (
-              <span key={skill} className="text-sm text-[#8892A4] py-3 border-b border-[#1E2A3A]">
-                {skill}
-              </span>
+        {/* ══ QUEST LOG ══ */}
+        <RPGFrame title="QUEST_LOG.TXT" accent="236,72,153">
+          <div className="space-y-5 pt-3">
+            <p className="font-mono text-[11px] text-pink-400/60 tracking-widest">&gt; READING COMPLETED QUESTS...</p>
+            {EXPERIENCE.map((q, i) => (
+              <div key={i} className="space-y-2 font-mono text-sm border-b border-white/5 pb-4 last:border-0 last:pb-0">
+                <div className="flex items-start justify-between gap-3 flex-wrap">
+                  <div>
+                    <p className="text-white font-semibold">{q.role}</p>
+                    <p className="text-pink-400/70 text-xs">&gt; {q.company} · {q.period}</p>
+                  </div>
+                  <span
+                    className="text-[10px] px-2 py-0.5 rounded border whitespace-nowrap"
+                    style={{ color: `rgba(${q.tagColor},1)`, borderColor: `rgba(${q.tagColor},0.3)`, background: `rgba(${q.tagColor},0.08)` }}
+                  >
+                    ✓ {q.tag}
+                  </span>
+                </div>
+                <p className="text-gray-400 text-xs leading-relaxed">{q.desc}</p>
+              </div>
             ))}
           </div>
-        </section>
+        </RPGFrame>
 
-        <section className="mb-16 md:mb-20">
-          <p className="text-xs uppercase tracking-widest text-blue-400 mb-6">Beyond Work</p>
-          <div className="flex flex-wrap gap-3">
-            {[
-              "🎵 Music Production", "🎌 Anime", "🎮 Gaming",
-              "✍️ Poetry", "🖼️ AI Art", "📱 Content Creation"
-            ].map((hobby) => (
-              <span key={hobby} className="text-sm bg-[#131929] border border-[#1E2A3A] px-4 py-2 rounded-full text-[#8892A4]">
-                {hobby}
-              </span>
+        {/* ══ ORIGIN STORY ══ */}
+        <RPGFrame title="ORIGIN_STORY.LOG" accent="167,139,250">
+          <div className="space-y-4 pt-3 font-mono text-sm">
+            <p className="text-[11px] text-purple-400/60 tracking-widest">&gt; READING BACKSTORY...</p>
+            {EDUCATION.map((o, i) => (
+              <div key={i} className="space-y-1.5">
+                <p className="text-white font-semibold">{o.degree}</p>
+                <p className="text-purple-400/70 text-xs">&gt; {o.institute} · {o.period}</p>
+                <p className="text-gray-400 text-xs leading-relaxed">{o.detail}</p>
+              </div>
             ))}
           </div>
-        </section>
+        </RPGFrame>
 
-        <section className="pb-16">
-          <p className="text-xs uppercase tracking-widest text-blue-400 mb-6">Get In Touch</p>
-          <p className="text-[#8892A4] mb-6 text-base">
-            Open to freelance projects, collaborations, and full-time opportunities.
-          </p>
-          <a
-            href="mailto:vardhandoharey@gmail.com"
-            className="inline-block bg-blue-600 hover:bg-blue-500 text-white text-xs font-semibold px-6 py-2.5 rounded-lg transition-colors duration-200"
-          >
-            Say Hello →
-          </a>
-        </section>
+        {/* ══ ACTIVE QUESTS ══ */}
+        <RPGFrame title="ACTIVE_QUESTS.EXE" accent="74,222,128">
+          <div className="space-y-5 pt-3">
+            <p className="font-mono text-[11px] text-green-400/60 tracking-widest">&gt; FETCHING CURRENT OBJECTIVES...</p>
+            {ACTIVE_QUESTS.map((q, i) => (
+              <QuestBar key={i} quest={q} />
+            ))}
+          </div>
+        </RPGFrame>
 
-      </div>
-    </div>
+      </section>
+    </>
   );
 }
