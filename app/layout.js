@@ -9,11 +9,8 @@ export default function RootLayout({ children }) {
   return (
     <html lang="en">
       <body className="bg-[#0a0a12] text-white antialiased">
-
         {/* ── Navbar ── */}
         <header className="fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-6 py-4 bg-[#0a0a12]/80 backdrop-blur-md border-b border-white/[0.06]">
-
-          {/* Left — name */}
           <a
             href="/"
             className="text-sm font-semibold text-white/80 tracking-wide hover:text-white transition-colors duration-200"
@@ -21,19 +18,15 @@ export default function RootLayout({ children }) {
             VD.
           </a>
 
-          {/* Right — word nav */}
-          <nav className="flex items-center gap-1">
+          <nav className="flex items-center gap-1 flex-wrap justify-end">
             {[
-              { label: "Home",     href: "/"         },
-              { label: "About",    href: "/about"    },
+              { label: "Home", href: "/" },
+              { label: "About", href: "/about" },
               { label: "Projects", href: "/projects" },
-              { label: "Resume",   href: "/resume"   },
+              { label: "Resume", href: "/resume" },
+              { label: "Contact", href: "/contact" },
             ].map((item) => (
-              <a
-                key={item.label}
-                href={item.href}
-                className="nav-word"
-              >
+              <a key={item.label} href={item.href} className="nav-word">
                 {item.label}
               </a>
             ))}
@@ -41,21 +34,17 @@ export default function RootLayout({ children }) {
         </header>
 
         {/* ── Page content ── */}
-        
-            <main style={{ paddingTop: '80px' }}>{children}</main>
+        <main style={{ paddingTop: "80px" }}>{children}</main>
 
-        
         {/* ── Footer ── */}
         <footer className="border-t border-white/[0.06] py-12 px-6">
           <div className="max-w-5xl mx-auto flex flex-col items-center text-center gap-6">
-
             <p className="text-white font-semibold text-base tracking-wide">
               Vardhan Doharey.
             </p>
 
-            {/* Nav links */}
-            <div className="flex items-center gap-6 text-sm text-gray-500">
-              {["Home", "About", "Projects", "Resume"].map((item) => (
+            <div className="flex items-center gap-6 text-sm text-gray-500 flex-wrap justify-center">
+              {["Home", "About", "Projects", "Resume", "Contact"].map((item) => (
                 <a
                   key={item}
                   href={item === "Home" ? "/" : `/${item.toLowerCase()}`}
@@ -66,10 +55,7 @@ export default function RootLayout({ children }) {
               ))}
             </div>
 
-            {/* Social icon buttons */}
             <div className="flex items-center gap-3">
-
-              {/* GitHub */}
               <a
                 href="https://github.com/VishnuVardhan2000"
                 target="_blank"
@@ -82,7 +68,6 @@ export default function RootLayout({ children }) {
                 </svg>
               </a>
 
-              {/* Instagram */}
               <a
                 href="https://www.instagram.com/vishnu.rudra?igsh=MXV0bHBzY3B5Zmp3Nw=="
                 target="_blank"
@@ -97,7 +82,6 @@ export default function RootLayout({ children }) {
                 </svg>
               </a>
 
-              {/* LinkedIn */}
               <a
                 href="https://www.linkedin.com/in/vardhan-doharey-zomb/"
                 target="_blank"
@@ -110,7 +94,6 @@ export default function RootLayout({ children }) {
                   <circle cx="4" cy="4" r="2" />
                 </svg>
               </a>
-
             </div>
 
             <p className="text-gray-700 text-xs">
@@ -119,7 +102,6 @@ export default function RootLayout({ children }) {
           </div>
         </footer>
 
-        {/* ── Global nav + social styles ── */}
         <style>{`
           .nav-word {
             padding: 8px 12px;
@@ -161,7 +143,6 @@ export default function RootLayout({ children }) {
             transform: translateY(-2px);
           }
         `}</style>
-
       </body>
     </html>
   );
