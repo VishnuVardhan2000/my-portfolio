@@ -218,7 +218,7 @@ export default function ContactPage() {
         EMAILJS_SERVICE_ID,
         EMAILJS_TEMPLATE_ID,
         formRef.current,
-        EMAILJS_PUBLIC_KEY
+        { publicKey: "SdcEi86rbAic5W-NDq4db" }
       );
       setStatus("success");
       setForm({ name: "", email: "", subject: "", message: "" });
