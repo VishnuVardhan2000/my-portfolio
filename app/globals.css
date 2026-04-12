@@ -55,3 +55,88 @@ main {
     padding-right: 4rem;
   }
 }
+/* ══════════════════════════════════════════
+   SPOTLIGHT + 3D TILT CARD EFFECT
+══════════════════════════════════════════ */
+
+.spotlight-wrapper {
+  position: relative;
+  border-radius: 1rem;
+  padding: 1px;
+  background: rgba(255, 255, 255, 0.07);
+  perspective: 800px;
+  transition: background 0.3s ease;
+}
+
+.spotlight-wrapper::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: radial-gradient(
+    180px circle at var(--mx) var(--my),
+    rgba(var(--glow), 0.65),
+    transparent 65%
+  );
+  opacity: 0;
+  transition: opacity 0.35s ease;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.spotlight-wrapper:hover::before {
+  opacity: 1;
+}
+
+.spotlight-card {
+  position: relative;
+  overflow: hidden;
+  border-radius: calc(1rem - 1px);
+  background: rgba(255, 255, 255, 0.05);
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  height: 100%;
+  z-index: 1;
+  transform: perspective(800px) rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg));
+  transition:
+    transform 0.15s cubic-bezier(0.03, 0.98, 0.52, 0.99),
+    background 0.3s ease,
+    box-shadow 0.3s ease;
+  will-change: transform;
+}
+
+.spotlight-wrapper:hover .spotlight-card {
+  background: rgba(255, 255, 255, 0.08);
+  box-shadow:
+    0 0 0 1px rgba(var(--glow), 0.15),
+    0 20px 60px -10px rgba(var(--glow), 0.12),
+    0 8px 24px -4px rgba(0, 0, 0, 0.4);
+}
+
+.spotlight-wrapper:not(:hover) .spotlight-card {
+  transition:
+    transform 0.5s cubic-bezier(0.03, 0.98, 0.52, 0.99),
+    background 0.3s ease,
+    box-shadow 0.3s ease;
+}
+
+.spotlight-inner {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.35s ease;
+  background: radial-gradient(
+    350px circle at var(--mx) var(--my),
+    rgba(var(--glow), 0.09),
+    transparent 60%
+  );
+  z-index: 0;
+}
+
+.spotlight-wrapper:hover .spotlight-inner {
+  opacity: 1;
+}
