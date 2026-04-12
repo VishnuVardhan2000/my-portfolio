@@ -49,7 +49,11 @@ export default function ProjectsPage() {
         </p>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 pb-10">
+      <div className="grid gap-8 pb-10"
+           style={{
+             gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))',
+          justifyContent: 'center'
+          }}>
         {projects.map((project, index) => (
           <div
             key={index}
