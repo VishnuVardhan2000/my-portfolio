@@ -97,7 +97,7 @@ export default function RootLayout({ children }) {
             </div>
 
             <p className="text-gray-700 text-xs">
-              © {new Date().getFullYear()} Vardhan Doharey. All rights reserved.
+              © 2026 Vardhan Doharey. All rights reserved.
             </p>
           </div>
         </footer>
