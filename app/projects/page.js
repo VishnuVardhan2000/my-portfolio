@@ -82,8 +82,6 @@ function ProjectCard({ project }) {
         background:`${c}0.025)`,
         boxShadow:`0 0 40px ${c}0.04) inset`,
       }}>
-
-      {/* RPG corner brackets */}
       {[
         { top:"-1px",left:"-1px",  borderTop:`2px solid ${c}0.8)`, borderLeft:`2px solid ${c}0.8)`,  borderRadius:"2px 0 0 0" },
         { top:"-1px",right:"-1px", borderTop:`2px solid ${c}0.8)`, borderRight:`2px solid ${c}0.8)`, borderRadius:"0 2px 0 0" },
@@ -92,16 +90,12 @@ function ProjectCard({ project }) {
       ].map((s, i) => (
         <span key={i} style={{ position:"absolute", width:"12px", height:"12px", pointerEvents:"none", ...s }} />
       ))}
-
-      {/* Badge */}
       {project.badge && (
         <span className="absolute top-4 right-4 text-[10px] font-bold px-2.5 py-0.5 rounded-full font-mono z-10 tracking-wide"
           style={{ background:`rgba(${g},0.15)`, color:`rgb(${g})`, border:`1px solid rgba(${g},0.3)` }}>
           ⭐ {project.badge}
         </span>
       )}
-
-      {/* Content */}
       <div className="relative z-10 flex flex-col gap-4 h-full">
         <div>
           <p className="font-mono text-[10px] tracking-widest mb-1" style={{ color:`rgba(${g},0.6)` }}>
@@ -109,11 +103,7 @@ function ProjectCard({ project }) {
           </p>
           <h2 className="text-xl font-bold text-white font-mono">{project.title}</h2>
         </div>
-
-        <p className="text-gray-400 text-sm leading-relaxed font-mono flex-1">
-          {project.description}
-        </p>
-
+        <p className="text-gray-400 text-sm leading-relaxed font-mono flex-1">{project.description}</p>
         <div className="flex flex-wrap gap-2">
           {project.tech.map((t, i) => (
             <span key={i} className="text-xs px-2.5 py-1 rounded-lg font-mono"
@@ -122,7 +112,6 @@ function ProjectCard({ project }) {
             </span>
           ))}
         </div>
-
         <div className="flex gap-3 pt-1">
           <a href={project.github} target="_blank" rel="noreferrer"
             className="flex-1 text-center text-xs font-semibold py-2 rounded-xl font-mono transition-all duration-200"
@@ -189,7 +178,6 @@ export default function ProjectsPage() {
       <div className="scanlines pointer-events-none fixed inset-0 z-20" />
 
       <style>{`
-        /* scanlines */
         .scanlines::before {
           content:""; position:fixed; inset:0; z-index:20;
           background: repeating-linear-gradient(0deg,
@@ -197,8 +185,20 @@ export default function ProjectsPage() {
             rgba(0,0,0,0.08) 2px, rgba(0,0,0,0.08) 4px);
           pointer-events:none;
         }
-
-        /* RPG project card — 3D tilt + corner brackets + cursor spotlight */
+        .projects-glow-word {
+          color: #60a5fa;
+          text-shadow: none;
+          transition: text-shadow 0.35s ease, color 0.35s ease;
+          cursor: default;
+        }
+        .projects-glow-word:hover {
+          color: #93c5fd;
+          text-shadow:
+            0 0 8px rgba(96,165,250,1),
+            0 0 20px rgba(96,165,250,0.8),
+            0 0 40px rgba(96,165,250,0.5),
+            0 0 80px rgba(96,165,250,0.25);
+        }
         .rpg-proj-card {
           position: relative;
           border-radius: 12px;
@@ -213,40 +213,28 @@ export default function ProjectsPage() {
           transition: transform 0.15s ease, box-shadow 0.38s ease;
           will-change: transform;
         }
-
-        /* inner background spotlight follows cursor */
         .rpg-proj-card::before {
           content:""; position:absolute; inset:0; border-radius:inherit;
           pointer-events:none; z-index:0;
-          background: radial-gradient(
-            300px circle at var(--mx) var(--my),
-            var(--accent-glow) 0%, transparent 70%
-          );
+          background: radial-gradient(300px circle at var(--mx) var(--my),
+            var(--accent-glow) 0%, transparent 70%);
           opacity:var(--mo); transition:opacity 0.4s ease;
         }
-
-        /* border spotlight follows cursor */
         .rpg-proj-card::after {
           content:""; position:absolute; inset:0; border-radius:inherit; padding:1px;
           pointer-events:none; z-index:2;
-          background: radial-gradient(
-            220px circle at var(--mx) var(--my),
-            var(--accent-border), transparent 60%
-          );
+          background: radial-gradient(220px circle at var(--mx) var(--my),
+            var(--accent-border), transparent 60%);
           -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
           -webkit-mask-composite: xor; mask-composite: exclude;
           opacity:var(--mo); transition:opacity 0.4s ease;
         }
-
         @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.45} }
         .blink { animation: blink 2.2s ease-in-out infinite; }
       `}</style>
 
-      <section
-        className="max-w-6xl mx-auto px-4 pt-8 pb-20"
+      <section className="max-w-6xl mx-auto px-4 pt-8 pb-20"
         style={{ opacity: booted ? 1 : 0, transition:"opacity 0.8s ease" }}>
-
-        {/* ── Header ── */}
         <div className="mb-14">
           <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-blue-500/10 border border-blue-500/20 text-blue-400 text-xs font-mono font-medium mb-6 tracking-wide">
             <span className="w-1.5 h-1.5 rounded-full bg-blue-400 blink" />
@@ -254,19 +242,12 @@ export default function ProjectsPage() {
           </div>
           <h1 className="text-4xl md:text-6xl font-bold text-white mb-4 font-mono">
             My{" "}
-            <span style={{
-              color:"#60a5fa",
-              textShadow:"0 0 10px rgba(96,165,250,0.5), 0 0 30px rgba(96,165,250,0.3), 0 0 60px rgba(96,165,250,0.15)"
-            }}>
-              Projects
-            </span>
+            <span className="projects-glow-word">Projects</span>
           </h1>
           <p className="text-gray-400 text-base max-w-xl font-mono">
             &gt; A collection of things I&apos;ve built — from web apps to AI tools.
           </p>
         </div>
-
-        {/* ── Cards Grid ── */}
         <div className="flex flex-wrap gap-8 pb-10 justify-center">
           {projects.map((project, index) => (
             <div key={index} style={{ width:"clamp(300px, 30%, 380px)" }}>
@@ -274,10 +255,8 @@ export default function ProjectsPage() {
             </div>
           ))}
         </div>
-
       </section>
 
-      {/* ambient blue orbs */}
       <div className="fixed top-[-200px] left-[-100px] w-[600px] h-[600px] bg-blue-700/[0.07] rounded-full blur-[180px] pointer-events-none z-0" />
       <div className="fixed bottom-[-150px] right-[-100px] w-[500px] h-[500px] bg-blue-900/[0.06] rounded-full blur-[160px] pointer-events-none z-0" />
     </>
