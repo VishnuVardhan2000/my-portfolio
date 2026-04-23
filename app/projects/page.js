@@ -1,5 +1,6 @@
 "use client";
 import { useRef, useCallback, useState, useEffect } from "react";
+import { useTheme } from "../context/ThemeContext"; // ← ADDED
 
 const BOOT_LINES = [
   "> INITIALIZING PROJECT VAULT...",
@@ -169,8 +170,12 @@ const projects = [
 ];
 
 export default function ProjectsPage() {
+  const { setAccent } = useTheme(); // ← ADDED
   const [booted, setBooted] = useState(false);
   const handleBoot = useCallback(() => setBooted(true), []);
+
+  // ← ADDED — set blue on mount
+  useEffect(() => { setAccent("96,165,250"); }, [setAccent]);
 
   return (
     <>

@@ -2,36 +2,55 @@
 import { useRef, useState, useEffect } from "react";
 import { useTheme } from "../context/ThemeContext";
 
+// ← Module-level — survives page navigation in Next.js
+let globalAudio = null;
+let globalIsPlaying = false;
+let globalVolume = 0.4;
+
 export default function MusicPlayer() {
   const { accent } = useTheme();
-  const audioRef = useRef(null);
   const analyserRef = useRef(null);
   const audioCtxRef = useRef(null);
   const animFrameRef = useRef(null);
-  const dragRef = useRef({ dragging:false, startX:0, startY:0, initX:0, initY:0 });
+  const dragRef = useRef({ dragging: false, startX: 0, startY: 0, initX: 0, initY: 0 });
 
-  const [isPlaying, setIsPlaying] = useState(false);
-  const [volume, setVolume] = useState(0.4);
+  const [isPlaying, setIsPlaying] = useState(globalIsPlaying);
+  const [volume, setVolume] = useState(globalVolume);
   const [beats, setBeats] = useState(Array(10).fill(2));
   const [visible, setVisible] = useState(false);
   const [pos, setPos] = useState({ x: null, y: null });
 
+  // Show after boot screen
   useEffect(() => {
     const timer = setTimeout(() => setVisible(true), 4000);
     return () => clearTimeout(timer);
   }, []);
 
+  // Set default position
   useEffect(() => {
     if (typeof window !== "undefined") {
       setPos({ x: window.innerWidth - 160, y: window.innerHeight - 260 });
     }
   }, []);
 
+  // ← Create audio ONCE globally — never recreated on navigation
+  useEffect(() => {
+    if (!globalAudio) {
+      globalAudio = new Audio("/portfoliobg.m4a");
+      globalAudio.loop = true;
+      globalAudio.volume = globalVolume;
+    }
+    // Sync UI state with actual audio state on mount
+    setIsPlaying(globalIsPlaying);
+    setVolume(globalVolume);
+  }, []);
+
+  // Init Web Audio analyser (only once)
   const initAudio = () => {
-    if (audioCtxRef.current) return;
+    if (audioCtxRef.current || !globalAudio) return;
     const ctx = new (window.AudioContext || window.webkitAudioContext)();
     audioCtxRef.current = ctx;
-    const source = ctx.createMediaElementSource(audioRef.current);
+    const source = ctx.createMediaElementSource(globalAudio);
     const analyser = ctx.createAnalyser();
     analyser.fftSize = 64;
     source.connect(analyser);
@@ -39,6 +58,7 @@ export default function MusicPlayer() {
     analyserRef.current = analyser;
   };
 
+  // Beat animation loop
   useEffect(() => {
     const tick = () => {
       if (analyserRef.current) {
@@ -58,17 +78,20 @@ export default function MusicPlayer() {
 
   const togglePlay = async () => {
     initAudio();
-    const audio = audioRef.current;
-    if (!audio) return;
+    if (!globalAudio) return;
+
     if (audioCtxRef.current?.state === "suspended") {
       await audioCtxRef.current.resume();
     }
+
     if (isPlaying) {
-      audio.pause();
+      globalAudio.pause();
+      globalIsPlaying = false;
       setIsPlaying(false);
     } else {
       try {
-        await audio.play();
+        await globalAudio.play();
+        globalIsPlaying = true;
         setIsPlaying(true);
       } catch (e) {
         console.error("Playback failed:", e);
@@ -78,13 +101,15 @@ export default function MusicPlayer() {
 
   const handleVolume = (e) => {
     const val = parseFloat(e.target.value);
+    globalVolume = val;        // ← persist globally
     setVolume(val);
-    if (audioRef.current) audioRef.current.volume = val;
+    if (globalAudio) globalAudio.volume = val;
   };
 
+  // Drag logic
   const onMouseDown = (e) => {
     if (e.target.tagName === "INPUT" || e.target.tagName === "BUTTON") return;
-    dragRef.current = { dragging:true, startX:e.clientX, startY:e.clientY, initX:pos.x, initY:pos.y };
+    dragRef.current = { dragging: true, startX: e.clientX, startY: e.clientY, initX: pos.x, initY: pos.y };
     e.preventDefault();
   };
 
@@ -111,7 +136,7 @@ export default function MusicPlayer() {
 
   return (
     <>
-      <audio ref={audioRef} src="/portfoliobg.m4a" loop preload="auto" />
+      {/* No <audio> tag needed — using global Audio object */}
 
       <div
         onMouseDown={onMouseDown}
