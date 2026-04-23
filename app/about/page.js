@@ -1,5 +1,6 @@
 "use client";
 import { useEffect, useRef, useState, useCallback } from "react";
+import { useTheme } from "../context/ThemeContext"; // ← ADDED
 
 const PLAYER = {
   name: "Vardhan Doharey",
@@ -22,20 +23,16 @@ const SKILLS = [
 
 const EXPERIENCE = [
   {
-    company: "Genpact",
-    role: "Process Associate",
-    period: "2023 — 2024",
+    company: "Genpact", role: "Process Associate", period: "2023 — 2024",
     desc: "Handled customer operations and process workflows. Leveled up problem-solving and pressure management skills. Left to pursue the dev path full-time.",
-    tag: "QUEST COMPLETED",
-    tagColor: "236,72,153",
+    tag: "QUEST COMPLETED", tagColor: "236,72,153",
   },
 ];
 
 const EDUCATION = [
   {
     degree: "B.Tech — Computer Science (AI / ML)",
-    institute: "SAGE University, Indore",
-    period: "2020 — 2024",
+    institute: "SAGE University, Indore", period: "2020 — 2024",
     detail: "Specialized in Machine Learning and AI. Built CLI tools, Resume Builders, and first full-stack apps here.",
   },
 ];
@@ -61,7 +58,6 @@ const BOOT_LINES = [
 function BootScreen({ onDone }) {
   const [lines, setLines] = useState([]);
   const [fading, setFading] = useState(false);
-
   useEffect(() => {
     let i = 0;
     const tick = setInterval(() => {
@@ -69,27 +65,18 @@ function BootScreen({ onDone }) {
       i++;
       if (i >= BOOT_LINES.length) {
         clearInterval(tick);
-        setTimeout(() => {
-          setFading(true);
-          setTimeout(onDone, 600);
-        }, 600);
+        setTimeout(() => { setFading(true); setTimeout(onDone, 600); }, 600);
       }
     }, 320);
     return () => clearInterval(tick);
   }, [onDone]);
-
   return (
-    <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-[#0a0a12]"
-      style={{ transition: "opacity 0.6s ease", opacity: fading ? 0 : 1, pointerEvents: fading ? "none" : "all" }}
-    >
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-[#0a0a12]"
+      style={{ transition:"opacity 0.6s ease", opacity: fading ? 0 : 1, pointerEvents: fading ? "none" : "all" }}>
       <div className="space-y-2 px-8 max-w-lg w-full">
         {lines.map((line, i) => (
-          <p
-            key={i}
-            className="font-mono text-sm boot-line"
-            style={{ color: i === lines.length - 1 ? "#00ff88" : "rgba(74,222,128,0.75)" }}
-          >
+          <p key={i} className="font-mono text-sm"
+            style={{ color: i === lines.length - 1 ? "#00ff88" : "rgba(74,222,128,0.75)" }}>
             {line}
           </p>
         ))}
@@ -99,36 +86,49 @@ function BootScreen({ onDone }) {
 }
 
 function RPGFrame({ children, title, accent = "0,255,136" }) {
+  const ref = useRef(null);
   const c = `rgba(${accent},`;
-  return (
-    <div
-      className="relative rounded-xl p-6"
-      style={{
-        border: `1px solid ${c}0.2)`,
-        background: `${c}0.02)`,
-        boxShadow: `0 0 40px ${c}0.04) inset`,
-      }}
-    >
-      <span className="absolute top-[-1px] left-[-1px] w-3 h-3"
-        style={{ borderTop: `2px solid ${c}0.8)`, borderLeft: `2px solid ${c}0.8)`, borderRadius: "2px 0 0 0" }} />
-      <span className="absolute top-[-1px] right-[-1px] w-3 h-3"
-        style={{ borderTop: `2px solid ${c}0.8)`, borderRight: `2px solid ${c}0.8)`, borderRadius: "0 2px 0 0" }} />
-      <span className="absolute bottom-[-1px] left-[-1px] w-3 h-3"
-        style={{ borderBottom: `2px solid ${c}0.8)`, borderLeft: `2px solid ${c}0.8)`, borderRadius: "0 0 0 2px" }} />
-      <span className="absolute bottom-[-1px] right-[-1px] w-3 h-3"
-        style={{ borderBottom: `2px solid ${c}0.8)`, borderRight: `2px solid ${c}0.8)`, borderRadius: "0 0 2px 0" }} />
 
+  const onMove = useCallback((e) => {
+    const el = ref.current; if (!el) return;
+    const r = el.getBoundingClientRect();
+    el.style.setProperty("--mx", `${e.clientX - r.left}px`);
+    el.style.setProperty("--my", `${e.clientY - r.top}px`);
+    el.style.setProperty("--mo", "1");
+  }, []);
+
+  const onLeave = useCallback(() => {
+    const el = ref.current; if (!el) return;
+    el.style.setProperty("--mx", "-999px");
+    el.style.setProperty("--my", "-999px");
+    el.style.setProperty("--mo", "0");
+  }, []);
+
+  return (
+    <div ref={ref} onMouseMove={onMove} onMouseLeave={onLeave}
+      className="rpg-frame relative rounded-xl p-6"
+      style={{
+        "--mx":"-999px","--my":"-999px","--mo":"0","--rpg-accent":accent,
+        border:`1px solid ${c}0.2)`, background:`${c}0.02)`,
+        boxShadow:`0 0 40px ${c}0.04) inset`,
+      }}>
+      <span className="absolute top-[-1px] left-[-1px] w-3 h-3 pointer-events-none"
+        style={{ borderTop:`2px solid ${c}0.8)`, borderLeft:`2px solid ${c}0.8)`, borderRadius:"2px 0 0 0" }} />
+      <span className="absolute top-[-1px] right-[-1px] w-3 h-3 pointer-events-none"
+        style={{ borderTop:`2px solid ${c}0.8)`, borderRight:`2px solid ${c}0.8)`, borderRadius:"0 2px 0 0" }} />
+      <span className="absolute bottom-[-1px] left-[-1px] w-3 h-3 pointer-events-none"
+        style={{ borderBottom:`2px solid ${c}0.8)`, borderLeft:`2px solid ${c}0.8)`, borderRadius:"0 0 0 2px" }} />
+      <span className="absolute bottom-[-1px] right-[-1px] w-3 h-3 pointer-events-none"
+        style={{ borderBottom:`2px solid ${c}0.8)`, borderRight:`2px solid ${c}0.8)`, borderRadius:"0 0 2px 0" }} />
       {title && (
         <div className="absolute -top-3.5 left-6">
-          <span
-            className="font-mono text-[11px] font-bold tracking-widest px-3 py-0.5 rounded"
-            style={{ color: `rgba(${accent},1)`, background: "#0a0a12", border: `1px solid ${c}0.25)` }}
-          >
+          <span className="font-mono text-[11px] font-bold tracking-widest px-3 py-0.5 rounded"
+            style={{ color:`rgba(${accent},1)`, background:"#0a0a12", border:`1px solid ${c}0.25)` }}>
             // {title}
           </span>
         </div>
       )}
-      {children}
+      <div className="relative z-10">{children}</div>
     </div>
   );
 }
@@ -138,20 +138,18 @@ function XPBar({ skill, animate }) {
     <div className="space-y-1.5">
       <div className="flex items-center justify-between">
         <span className="text-sm font-mono text-gray-300">{skill.name}</span>
-        <span className="text-xs font-mono" style={{ color: `rgba(${skill.color},0.85)` }}>
+        <span className="text-xs font-mono" style={{ color:`rgba(${skill.color},0.85)` }}>
           LV.{Math.floor(skill.level / 10)} &nbsp;·&nbsp; {skill.xp}
         </span>
       </div>
-      <div className="h-2 rounded-full overflow-hidden" style={{ background: "rgba(255,255,255,0.05)" }}>
-        <div
-          className="h-full rounded-full"
+      <div className="h-2 rounded-full overflow-hidden" style={{ background:"rgba(255,255,255,0.05)" }}>
+        <div className="h-full rounded-full"
           style={{
             width: animate ? `${skill.level}%` : "0%",
-            background: `linear-gradient(90deg, rgba(${skill.color},0.5), rgba(${skill.color},1))`,
-            boxShadow: `0 0 10px rgba(${skill.color},0.55)`,
-            transition: "width 1.2s cubic-bezier(0.22,1,0.36,1)",
-          }}
-        />
+            background:`linear-gradient(90deg, rgba(${skill.color},0.5), rgba(${skill.color},1))`,
+            boxShadow:`0 0 10px rgba(${skill.color},0.55)`,
+            transition:"width 1.2s cubic-bezier(0.22,1,0.36,1)",
+          }} />
       </div>
     </div>
   );
@@ -164,22 +162,18 @@ function QuestBar({ quest }) {
     <div className="space-y-1.5">
       <div className="flex items-center justify-between gap-2 flex-wrap">
         <span className="text-sm font-mono text-gray-300">{quest.quest}</span>
-        <span
-          className="text-[10px] font-mono px-2 py-0.5 rounded border whitespace-nowrap"
-          style={{ color: `rgba(${color},1)`, borderColor: `rgba(${color},0.3)`, background: `rgba(${color},0.08)` }}
-        >
+        <span className="text-[10px] font-mono px-2 py-0.5 rounded border whitespace-nowrap"
+          style={{ color:`rgba(${color},1)`, borderColor:`rgba(${color},0.3)`, background:`rgba(${color},0.08)` }}>
           {quest.type}
         </span>
       </div>
-      <div className="h-1.5 rounded-full overflow-hidden" style={{ background: "rgba(255,255,255,0.05)" }}>
-        <div
-          className="h-full rounded-full"
+      <div className="h-1.5 rounded-full overflow-hidden" style={{ background:"rgba(255,255,255,0.05)" }}>
+        <div className="h-full rounded-full"
           style={{
-            width: `${quest.progress}%`,
-            background: `linear-gradient(90deg, rgba(${color},0.5), rgba(${color},1))`,
-            boxShadow: `0 0 6px rgba(${color},0.4)`,
-          }}
-        />
+            width:`${quest.progress}%`,
+            background:`linear-gradient(90deg, rgba(${color},0.5), rgba(${color},1))`,
+            boxShadow:`0 0 6px rgba(${color},0.4)`,
+          }} />
       </div>
       <p className="text-[11px] font-mono text-gray-600">{quest.progress}% complete</p>
     </div>
@@ -187,10 +181,14 @@ function QuestBar({ quest }) {
 }
 
 export default function AboutPage() {
+  const { setAccent } = useTheme(); // ← ADDED
   const [booted, setBooted] = useState(false);
   const [skillsVisible, setSkillsVisible] = useState(false);
   const skillsRef = useRef(null);
   const handleBoot = useCallback(() => setBooted(true), []);
+
+  // ← ADDED — set green on mount
+  useEffect(() => { setAccent("34,197,94"); }, [setAccent]);
 
   useEffect(() => {
     if (!booted || !skillsRef.current) return;
@@ -207,50 +205,87 @@ export default function AboutPage() {
       <BootScreen onDone={handleBoot} />
       <div className="scanlines pointer-events-none fixed inset-0 z-20" />
 
-      <section
-        className="max-w-4xl mx-auto px-4 pt-8 pb-24 space-y-10"
-        style={{ opacity: booted ? 1 : 0, transition: "opacity 0.8s ease" }}
-      >
+      <style>{`
+        .scanlines::before {
+          content:""; position:fixed; inset:0; z-index:20;
+          background: repeating-linear-gradient(0deg,
+            transparent, transparent 2px,
+            rgba(0,0,0,0.08) 2px, rgba(0,0,0,0.08) 4px);
+          pointer-events:none;
+        }
+        .about-name-glow {
+          color: #fff;
+          text-shadow: none;
+          transition: text-shadow 0.35s ease, color 0.35s ease;
+          cursor: default;
+          display: inline-block;
+        }
+        .about-name-glow:hover {
+          color: #6effc0;
+          text-shadow:
+            0 0 8px rgba(0,255,136,1),
+            0 0 20px rgba(0,255,136,0.8),
+            0 0 40px rgba(0,255,136,0.5),
+            0 0 80px rgba(0,255,136,0.25) !important;
+        }
+        .rpg-frame {
+          transition: transform 0.3s cubic-bezier(0.16,1,0.3,1);
+        }
+        .rpg-frame:hover { transform: translateY(-2px); }
+        .rpg-frame::before {
+          content:""; position:absolute; inset:0; border-radius:inherit;
+          pointer-events:none; z-index:0;
+          background: radial-gradient(300px circle at var(--mx) var(--my),
+            rgba(var(--rpg-accent),0.07) 0%, transparent 70%);
+          opacity:var(--mo); transition:opacity 0.4s ease;
+        }
+        .rpg-frame::after {
+          content:""; position:absolute; inset:0; border-radius:inherit; padding:1px;
+          pointer-events:none; z-index:2;
+          background: radial-gradient(220px circle at var(--mx) var(--my),
+            rgba(var(--rpg-accent),0.7), transparent 60%);
+          -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+          -webkit-mask-composite: xor; mask-composite: exclude;
+          opacity:var(--mo); transition:opacity 0.4s ease;
+        }
+      `}</style>
 
-        {/* ══ HERO ══ */}
+      <div className="fixed top-[-200px] right-[-100px] w-[500px] h-[500px] bg-green-900/[0.06] rounded-full blur-[180px] pointer-events-none" />
+      <div className="fixed bottom-[-150px] left-[-100px] w-[400px] h-[400px] bg-emerald-900/[0.05] rounded-full blur-[160px] pointer-events-none" />
+
+      <section className="max-w-4xl mx-auto px-4 pt-8 pb-24 space-y-10"
+        style={{ opacity: booted ? 1 : 0, transition:"opacity 0.8s ease" }}>
+
+        {/* HERO */}
         <RPGFrame title="PLAYER_DATA.EXE" accent="0,255,136">
           <div className="flex flex-col md:flex-row gap-8 items-center md:items-start pt-3">
             <div className="relative flex-shrink-0">
-              <div
-                className="w-32 h-32 md:w-36 md:h-36 rounded-xl overflow-hidden"
-                style={{ border: "2px solid rgba(0,255,136,0.35)", boxShadow: "0 0 28px rgba(0,255,136,0.12)" }}
-              >
-                <img
-                  src={PLAYER.photo}
-                  alt={PLAYER.name}
-                  className="w-full h-full object-cover"
+              <div className="w-32 h-32 md:w-36 md:h-36 rounded-xl overflow-hidden"
+                style={{ border:"2px solid rgba(0,255,136,0.35)", boxShadow:"0 0 28px rgba(0,255,136,0.12)" }}>
+                <img src={PLAYER.photo} alt={PLAYER.name} className="w-full h-full object-cover"
                   onError={(e) => {
                     e.target.parentNode.innerHTML =
                       `<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;background:rgba(0,255,136,0.05);font-size:2.5rem">⚔️</div>`;
-                  }}
-                />
+                  }} />
               </div>
-              <span
-                className="absolute -bottom-3 left-1/2 -translate-x-1/2 font-mono text-[10px] px-2 py-0.5 rounded-full whitespace-nowrap"
-                style={{ background: "rgba(0,255,136,0.15)", color: "#00ff88", border: "1px solid rgba(0,255,136,0.3)" }}
-              >
+              <span className="absolute -bottom-3 left-1/2 -translate-x-1/2 font-mono text-[10px] px-2 py-0.5 rounded-full whitespace-nowrap"
+                style={{ background:"rgba(0,255,136,0.15)", color:"#00ff88", border:"1px solid rgba(0,255,136,0.3)" }}>
                 ● ONLINE
               </span>
             </div>
-
             <div className="flex-1 space-y-3 font-mono text-sm">
               <div>
                 <p className="text-[10px] tracking-[0.2em] text-green-500/60 uppercase mb-1">&gt; IDENTITY CONFIRMED</p>
-                <h1 className="text-2xl md:text-3xl font-bold text-white" style={{ fontFamily: "var(--font-syne)", letterSpacing: "0.04em" }}>
-                  {PLAYER.name}
+                <h1 className="text-2xl md:text-3xl font-bold" style={{ letterSpacing:"0.04em" }}>
+                  <span className="about-name-glow">{PLAYER.name}</span>
                 </h1>
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-1.5 text-xs">
                 {[
-                  ["CLASS",    PLAYER.class,           "text-green-400"],
-                  ["SUBCLASS", PLAYER.subclass,        "text-blue-400"],
-                  ["LEVEL",    PLAYER.level,           "text-yellow-400"],
-                  ["STATUS",   PLAYER.status + " ▌",  "text-pink-400"],
+                  ["CLASS",    PLAYER.class,          "text-green-400"],
+                  ["SUBCLASS", PLAYER.subclass,       "text-blue-400"],
+                  ["LEVEL",    PLAYER.level,          "text-yellow-400"],
+                  ["STATUS",   PLAYER.status + " ▌", "text-pink-400"],
                 ].map(([key, val, cls]) => (
                   <p key={key}>
                     <span className="text-green-400/60">{key}</span>
@@ -259,26 +294,22 @@ export default function AboutPage() {
                   </p>
                 ))}
               </div>
-              <p className="text-gray-400 text-xs leading-relaxed pt-2 border-t border-white/5">
-                {PLAYER.bio}
-              </p>
+              <p className="text-gray-400 text-xs leading-relaxed pt-2 border-t border-white/5">{PLAYER.bio}</p>
             </div>
           </div>
         </RPGFrame>
 
-        {/* ══ SKILL TREE ══ */}
+        {/* SKILL TREE */}
         <div ref={skillsRef}>
           <RPGFrame title="SKILL_TREE.DAT" accent="96,165,250">
             <div className="space-y-5 pt-3">
               <p className="font-mono text-[11px] text-blue-400/60 tracking-widest">&gt; LOADING ATTRIBUTES...</p>
-              {SKILLS.map((s, i) => (
-                <XPBar key={i} skill={s} animate={skillsVisible} />
-              ))}
+              {SKILLS.map((s, i) => <XPBar key={i} skill={s} animate={skillsVisible} />)}
             </div>
           </RPGFrame>
         </div>
 
-        {/* ══ QUEST LOG ══ */}
+        {/* QUEST LOG */}
         <RPGFrame title="QUEST_LOG.TXT" accent="236,72,153">
           <div className="space-y-5 pt-3">
             <p className="font-mono text-[11px] text-pink-400/60 tracking-widest">&gt; READING COMPLETED QUESTS...</p>
@@ -289,10 +320,8 @@ export default function AboutPage() {
                     <p className="text-white font-semibold">{q.role}</p>
                     <p className="text-pink-400/70 text-xs">&gt; {q.company} · {q.period}</p>
                   </div>
-                  <span
-                    className="text-[10px] px-2 py-0.5 rounded border whitespace-nowrap"
-                    style={{ color: `rgba(${q.tagColor},1)`, borderColor: `rgba(${q.tagColor},0.3)`, background: `rgba(${q.tagColor},0.08)` }}
-                  >
+                  <span className="text-[10px] px-2 py-0.5 rounded border whitespace-nowrap"
+                    style={{ color:`rgba(${q.tagColor},1)`, borderColor:`rgba(${q.tagColor},0.3)`, background:`rgba(${q.tagColor},0.08)` }}>
                     ✓ {q.tag}
                   </span>
                 </div>
@@ -302,7 +331,7 @@ export default function AboutPage() {
           </div>
         </RPGFrame>
 
-        {/* ══ ORIGIN STORY ══ */}
+        {/* ORIGIN STORY */}
         <RPGFrame title="ORIGIN_STORY.LOG" accent="167,139,250">
           <div className="space-y-4 pt-3 font-mono text-sm">
             <p className="text-[11px] text-purple-400/60 tracking-widest">&gt; READING BACKSTORY...</p>
@@ -316,13 +345,11 @@ export default function AboutPage() {
           </div>
         </RPGFrame>
 
-        {/* ══ ACTIVE QUESTS ══ */}
+        {/* ACTIVE QUESTS */}
         <RPGFrame title="ACTIVE_QUESTS.EXE" accent="74,222,128">
           <div className="space-y-5 pt-3">
             <p className="font-mono text-[11px] text-green-400/60 tracking-widest">&gt; FETCHING CURRENT OBJECTIVES...</p>
-            {ACTIVE_QUESTS.map((q, i) => (
-              <QuestBar key={i} quest={q} />
-            ))}
+            {ACTIVE_QUESTS.map((q, i) => <QuestBar key={i} quest={q} />)}
           </div>
         </RPGFrame>
 

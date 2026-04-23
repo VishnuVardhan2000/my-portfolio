@@ -1,5 +1,6 @@
 "use client";
 import { useState, useRef, useCallback, useEffect } from "react";
+import { useTheme } from "../context/ThemeContext"; // ← ADDED
 
 const BOOT_LINES = [
   "> ACCESSING SECURE VAULT...",
@@ -82,10 +83,14 @@ function GoldCard({ children, className = "" }) {
 }
 
 export default function Resume() {
+  const { setAccent } = useTheme(); // ← ADDED
   const [booted, setBooted] = useState(false);
   const [activeSection, setActiveSection] = useState("experience");
   const handleBoot = useCallback(() => setBooted(true), []);
   const sections = ["experience", "projects", "skills", "education"];
+
+  // ← ADDED — set gold on mount
+  useEffect(() => { setAccent("234,179,8"); }, [setAccent]);
 
   return (
     <>
@@ -105,8 +110,6 @@ export default function Resume() {
           to   { opacity:1; transform:translateY(0); }
         }
         .fade-up { animation: fadeUp 0.4s cubic-bezier(0.16,1,0.3,1) forwards; }
-
-        /* name — hover only neon gold glow */
         .resume-name-glow {
           text-shadow: none;
           transition: text-shadow 0.35s ease, color 0.35s ease;
@@ -121,7 +124,6 @@ export default function Resume() {
             0 0 40px rgba(251,191,36,0.5),
             0 0 80px rgba(251,191,36,0.25) !important;
         }
-
         .gold-card {
           position: relative;
           border-radius: 1rem;

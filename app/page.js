@@ -1,6 +1,7 @@
 "use client";
 import { useRef, useEffect, useState, useCallback } from "react";
 import Link from "next/link";
+import { useTheme } from "./context/ThemeContext"; // ← ADDED
 
 const BOOT_LINES = [
   "> WELCOME TO MY PORTFOLIO...",
@@ -42,7 +43,6 @@ function BootScreen({ onDone }) {
   );
 }
 
-/* ── RPGFrame with neon cursor spotlight ── */
 function RPGFrame({ children, title, accent = "168,85,247", className = "" }) {
   const ref = useRef(null);
   const c = `rgba(${accent},`;
@@ -85,7 +85,6 @@ function RPGFrame({ children, title, accent = "168,85,247", className = "" }) {
   );
 }
 
-/* ── Gacha rolling XP stat bar ── */
 function StatXPBar({ stat, animate }) {
   const [display, setDisplay] = useState("0");
   useEffect(() => {
@@ -174,10 +173,14 @@ const projects = [
 ];
 
 export default function Home() {
-  const [booted, setBooted]         = useState(false);
+  const { setAccent } = useTheme(); // ← ADDED
+  const [booted, setBooted] = useState(false);
   const [statsVisible, setStatsVisible] = useState(false);
-  const statsRef  = useRef(null);
+  const statsRef = useRef(null);
   const handleBoot = useCallback(() => setBooted(true), []);
+
+  // ← ADDED — set purple on mount
+  useEffect(() => { setAccent("168,85,247"); }, [setAccent]);
 
   useEffect(() => {
     if (!booted || !statsRef.current) return;
@@ -196,7 +199,6 @@ export default function Home() {
 
       <div style={{ opacity: booted ? 1 : 0, transition: "opacity 0.8s ease" }}>
         <style>{`
-          /* ── Purple aura name glow ── */
           .neon-name {
             text-shadow: 0 0 10px rgba(168,85,247,0.24), 0 0 24px rgba(168,85,247,0.08);
             transition: text-shadow 0.45s ease, color 0.45s ease;
@@ -217,8 +219,6 @@ export default function Home() {
             text-shadow: 0 0 6px rgba(168,85,247,0.9), 0 0 18px rgba(168,85,247,0.45);
           }
           .rect-btn { border-radius: 10px; padding: 10px 18px; font-size: 0.82rem; line-height: 1; }
-
-          /* ── Scanlines ── */
           .scanlines::before {
             content: ""; position: fixed; inset: 0; z-index: 20;
             background: repeating-linear-gradient(0deg,
@@ -228,8 +228,6 @@ export default function Home() {
           }
           @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.45} }
           .blink { animation: blink 2.2s ease-in-out infinite; }
-
-          /* ── RPG neon cursor spotlight ── */
           .rpg-spotlight { --mx:-999px; --my:-999px; --mo:0; }
           .rpg-spotlight::before {
             content:""; position:absolute; inset:0; border-radius:inherit;
@@ -248,12 +246,8 @@ export default function Home() {
             opacity:var(--mo); transition:opacity 0.4s ease;
           }
           .rpg-spotlight > * { position:relative; z-index:1; }
-
-          /* ── Project card zoom ── */
           .proj-card { transition: transform 0.38s cubic-bezier(0.16,1,0.3,1); }
           .proj-card:hover { transform: scale(1.025) translateY(-3px); }
-
-          /* ── Chip grid bg ── */
           .chip-bg {
             background-image:
               linear-gradient(rgba(168,85,247,0.04) 1px, transparent 1px),
@@ -263,7 +257,6 @@ export default function Home() {
         `}</style>
 
         <main className="min-h-screen bg-[#0a0a12] text-white overflow-x-hidden">
-          {/* ambient glow orbs */}
           <div className="fixed top-[-200px] left-[-100px] w-[600px] h-[600px] bg-purple-700/[0.07] rounded-full blur-[180px] pointer-events-none" />
           <div className="fixed bottom-[-150px] right-[-100px] w-[500px] h-[500px] bg-purple-900/[0.06] rounded-full blur-[160px] pointer-events-none" />
 
@@ -394,7 +387,7 @@ export default function Home() {
               </div>
             </section>
 
-            {/* ── Currently / Active Quest ── */}
+            {/* ── Active Quest ── */}
             <RPGFrame title="CURRENT_QUEST.EXE" accent="45,212,191">
               <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-5 pt-2">
                 <div>

@@ -1,5 +1,6 @@
 "use client";
-import { useState, useRef, useCallback } from "react";
+import { useState, useRef, useCallback, useEffect } from "react"; // ← ADDED useEffect
+import { useTheme } from "../context/ThemeContext"; // ← ADDED
 import emailjs from "@emailjs/browser";
 
 const EMAILJS_SERVICE_ID  = "service_38qh568";
@@ -111,8 +112,12 @@ function TerminalTextarea({ label, name, value, onChange, accent="236,72,153" })
 }
 
 export default function ContactPage() {
+  const { setAccent } = useTheme(); // ← ADDED
   const [form, setForm]     = useState({ name:"", email:"", subject:"", message:"" });
   const [status, setStatus] = useState("idle");
+
+  // ← ADDED — set pink on mount
+  useEffect(() => { setAccent("244,114,182"); }, [setAccent]);
 
   const handleChange = (e) => setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
 
@@ -148,7 +153,6 @@ export default function ContactPage() {
             rgba(0,0,0,0.08) 2px, rgba(0,0,0,0.08) 4px);
           pointer-events:none;
         }
-        /* title — hover only neon pink glow */
         .contact-title-glow {
           color: #fff;
           text-shadow: none;
