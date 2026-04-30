@@ -1,6 +1,6 @@
 "use client";
 import { useEffect, useRef, useState, useCallback } from "react";
-import { useTheme } from "../context/ThemeContext"; // ← ADDED
+import { useTheme } from "../context/ThemeContext";
 
 const PLAYER = {
   name: "Vardhan Doharey",
@@ -88,7 +88,6 @@ function BootScreen({ onDone }) {
 function RPGFrame({ children, title, accent = "0,255,136" }) {
   const ref = useRef(null);
   const c = `rgba(${accent},`;
-
   const onMove = useCallback((e) => {
     const el = ref.current; if (!el) return;
     const r = el.getBoundingClientRect();
@@ -96,14 +95,12 @@ function RPGFrame({ children, title, accent = "0,255,136" }) {
     el.style.setProperty("--my", `${e.clientY - r.top}px`);
     el.style.setProperty("--mo", "1");
   }, []);
-
   const onLeave = useCallback(() => {
     const el = ref.current; if (!el) return;
     el.style.setProperty("--mx", "-999px");
     el.style.setProperty("--my", "-999px");
     el.style.setProperty("--mo", "0");
   }, []);
-
   return (
     <div ref={ref} onMouseMove={onMove} onMouseLeave={onLeave}
       className="rpg-frame relative rounded-xl p-6"
@@ -181,14 +178,38 @@ function QuestBar({ quest }) {
 }
 
 export default function AboutPage() {
-  const { setAccent } = useTheme(); // ← ADDED
-  const [booted, setBooted] = useState(false);
+  const { setAccent } = useTheme();
+  const [booted, setBooted]             = useState(false);
   const [skillsVisible, setSkillsVisible] = useState(false);
+  const [musicPlaying, setMusicPlaying]   = useState(false);
+  const [glitching, setGlitching]         = useState(false);
+  const [bassLevel, setBassLevel]         = useState(0);
+  const glitchTimeout = useRef(null);
   const skillsRef = useRef(null);
   const handleBoot = useCallback(() => setBooted(true), []);
 
-  // ← ADDED — set green on mount
   useEffect(() => { setAccent("34,197,94"); }, [setAccent]);
+
+  // ── Listen for beat events from MusicPlayer ──────────────
+  useEffect(() => {
+    const handler = (e) => {
+      const { bass, playing } = e.detail;
+      setMusicPlaying(playing);
+      setBassLevel(bass);
+
+      // Trigger glitch on strong bass hits
+      if (playing && bass > 0.5) {
+        setGlitching(true);
+        clearTimeout(glitchTimeout.current);
+        glitchTimeout.current = setTimeout(() => setGlitching(false), 120 + bass * 80);
+      }
+    };
+    window.addEventListener('bgm-beat', handler);
+    return () => {
+      window.removeEventListener('bgm-beat', handler);
+      clearTimeout(glitchTimeout.current);
+    };
+  }, []);
 
   useEffect(() => {
     if (!booted || !skillsRef.current) return;
@@ -248,6 +269,93 @@ export default function AboutPage() {
           -webkit-mask-composite: xor; mask-composite: exclude;
           opacity:var(--mo); transition:opacity 0.4s ease;
         }
+
+        /* ── GLITCH EFFECT ───────────────────────────────── */
+        .profile-glitch-wrap {
+          position: relative;
+          display: inline-block;
+        }
+
+        /* Subtle RGB split while music plays */
+        .profile-glitch-wrap.music-on img {
+          filter:
+            drop-shadow(2px 0 0 rgba(255,0,80,0.45))
+            drop-shadow(-2px 0 0 rgba(0,200,255,0.45));
+          transition: filter 0.3s ease;
+        }
+
+        /* Hard glitch on bass hit */
+        .profile-glitch-wrap.glitch-hit img {
+          animation: glitch-shake 0.15s steps(3) forwards;
+          filter:
+            drop-shadow(5px 0 0 rgba(255,0,80,0.9))
+            drop-shadow(-5px 0 0 rgba(0,200,255,0.9))
+            brightness(1.3);
+        }
+
+        /* Glitch scanline slice overlay */
+        .profile-glitch-wrap.glitch-hit::before {
+          content: "";
+          position: absolute;
+          inset: 0;
+          border-radius: inherit;
+          background: repeating-linear-gradient(
+            0deg,
+            transparent, transparent 3px,
+            rgba(0,255,136,0.08) 3px, rgba(0,255,136,0.08) 4px
+          );
+          animation: glitch-scan 0.15s steps(2) forwards;
+          pointer-events: none;
+          z-index: 2;
+        }
+
+        /* RGB slice bars */
+        .profile-glitch-wrap.glitch-hit::after {
+          content: "";
+          position: absolute;
+          inset: 0;
+          border-radius: inherit;
+          background:
+            linear-gradient(transparent 20%, rgba(255,0,80,0.15) 20%, rgba(255,0,80,0.15) 22%, transparent 22%),
+            linear-gradient(transparent 55%, rgba(0,200,255,0.15) 55%, rgba(0,200,255,0.15) 58%, transparent 58%),
+            linear-gradient(transparent 75%, rgba(0,255,136,0.1) 75%, rgba(0,255,136,0.1) 77%, transparent 77%);
+          animation: glitch-bars 0.12s steps(2) forwards;
+          pointer-events: none;
+          z-index: 3;
+          mix-blend-mode: screen;
+        }
+
+        @keyframes glitch-shake {
+          0%   { transform: translate(0) skewX(0deg); }
+          15%  { transform: translate(-5px, 1px) skewX(-4deg); }
+          30%  { transform: translate(5px, -1px) skewX(3deg); }
+          50%  { transform: translate(-3px, 2px) skewX(-2deg); }
+          70%  { transform: translate(3px, -1px) skewX(1deg); }
+          85%  { transform: translate(-1px, 0) skewX(-0.5deg); }
+          100% { transform: translate(0) skewX(0deg); }
+        }
+
+        @keyframes glitch-scan {
+          0%   { transform: translateY(0); opacity: 1; }
+          50%  { transform: translateY(-4px); opacity: 0.7; }
+          100% { transform: translateY(0); opacity: 0; }
+        }
+
+        @keyframes glitch-bars {
+          0%   { transform: translateX(0); opacity: 1; }
+          33%  { transform: translateX(-6px); opacity: 0.8; }
+          66%  { transform: translateX(4px); opacity: 0.6; }
+          100% { transform: translateX(0); opacity: 0; }
+        }
+
+        /* Pulsing border when music is on */
+        @keyframes border-pulse {
+          0%, 100% { box-shadow: 0 0 28px rgba(0,255,136,0.12); }
+          50%       { box-shadow: 0 0 40px rgba(0,255,136,0.35), 0 0 60px rgba(168,85,247,0.15); }
+        }
+        .profile-glitch-wrap.music-on .profile-img-border {
+          animation: border-pulse 0.8s ease-in-out infinite;
+        }
       `}</style>
 
       <div className="fixed top-[-200px] right-[-100px] w-[500px] h-[500px] bg-green-900/[0.06] rounded-full blur-[180px] pointer-events-none" />
@@ -259,20 +367,38 @@ export default function AboutPage() {
         {/* HERO */}
         <RPGFrame title="PLAYER_DATA.EXE" accent="0,255,136">
           <div className="flex flex-col md:flex-row gap-8 items-center md:items-start pt-3">
-            <div className="relative flex-shrink-0">
-              <div className="w-32 h-32 md:w-36 md:h-36 rounded-xl overflow-hidden"
-                style={{ border:"2px solid rgba(0,255,136,0.35)", boxShadow:"0 0 28px rgba(0,255,136,0.12)" }}>
-                <img src={PLAYER.photo} alt={PLAYER.name} className="w-full h-full object-cover"
+
+            {/* ── Profile image with glitch effect ── */}
+            <div className={`profile-glitch-wrap flex-shrink-0 ${musicPlaying ? 'music-on' : ''} ${glitching ? 'glitch-hit' : ''}`}>
+              <div className="profile-img-border w-32 h-32 md:w-36 md:h-36 rounded-xl overflow-hidden"
+                style={{
+                  border: `2px solid rgba(0,255,136,${musicPlaying ? 0.6 : 0.35})`,
+                  boxShadow:"0 0 28px rgba(0,255,136,0.12)",
+                  transition: "border-color 0.3s ease",
+                }}>
+                <img
+                  src={PLAYER.photo}
+                  alt={PLAYER.name}
+                  className="w-full h-full object-cover"
                   onError={(e) => {
                     e.target.parentNode.innerHTML =
                       `<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;background:rgba(0,255,136,0.05);font-size:2.5rem">⚔️</div>`;
-                  }} />
+                  }}
+                />
               </div>
+
+              {/* ONLINE / VIBING indicator */}
               <span className="absolute -bottom-3 left-1/2 -translate-x-1/2 font-mono text-[10px] px-2 py-0.5 rounded-full whitespace-nowrap"
-                style={{ background:"rgba(0,255,136,0.15)", color:"#00ff88", border:"1px solid rgba(0,255,136,0.3)" }}>
-                ● ONLINE
+                style={{
+                  background: musicPlaying ? "rgba(168,85,247,0.2)" : "rgba(0,255,136,0.15)",
+                  color: musicPlaying ? "#c084fc" : "#00ff88",
+                  border: `1px solid ${musicPlaying ? "rgba(168,85,247,0.4)" : "rgba(0,255,136,0.3)"}`,
+                  transition: "all 0.3s ease",
+                }}>
+                {musicPlaying ? "♫ VIBING" : "● ONLINE"}
               </span>
             </div>
+
             <div className="flex-1 space-y-3 font-mono text-sm">
               <div>
                 <p className="text-[10px] tracking-[0.2em] text-green-500/60 uppercase mb-1">&gt; IDENTITY CONFIRMED</p>
