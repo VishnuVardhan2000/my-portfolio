@@ -3,14 +3,8 @@
 @tailwind utilities;
 
 @keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(12px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: translateY(0);    }
 }
 
 .projects-grid {
@@ -39,31 +33,76 @@ h1, h2, h3, h4, h5, h6 {
   font-family: var(--font-syne);
 }
 
-/* Global page padding - fixes mobile edge issue */
+/* Global page padding */
 main {
   padding-left: 1rem;
   padding-right: 1rem;
+  /* ✅ NEW — keeps page content above the beat canvas */
+  position: relative;
+  z-index: 2;
 }
 
 @media (min-width: 640px) {
-  main {
-    padding-left: 2rem;
-    padding-right: 2rem;
-  }
+  main { padding-left: 2rem; padding-right: 2rem; }
+}
+@media (min-width: 1024px) {
+  main { padding-left: 4rem; padding-right: 4rem; }
 }
 
-@media (min-width: 1024px) {
-  main {
-    padding-left: 4rem;
-    padding-right: 4rem;
-  }
+/* ✅ NEW — navbar stays above canvas too */
+header {
+  position: fixed;
+  z-index: 50;
+}
+
+/* ✅ NEW — volume range slider styling to match your dark theme */
+input[type="range"] {
+  -webkit-appearance: none;
+  appearance: none;
+  background: transparent;
+}
+input[type="range"]::-webkit-slider-runnable-track {
+  height: 3px;
+  border-radius: 9999px;
+  background: rgba(255, 255, 255, 0.1);
+}
+input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  margin-top: -4.5px;
+  cursor: pointer;
+  transition: transform 0.15s ease;
+}
+input[type="range"]:hover::-webkit-slider-thumb {
+  transform: scale(1.3);
+}
+input[type="range"]::-moz-range-track {
+  height: 3px;
+  border-radius: 9999px;
+  background: rgba(255, 255, 255, 0.1);
+}
+input[type="range"]::-moz-range-thumb {
+  width: 12px;
+  height: 12px;
+  border: none;
+  border-radius: 50%;
+  cursor: pointer;
+}
+
+/* ✅ NEW — beat canvas sits behind everything */
+canvas.beat-canvas {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 1;
 }
 
 /* ══════════════════════════════════════════
    SPOTLIGHT BORDER + 3D TILT CARD EFFECT
 ══════════════════════════════════════════ */
 
-/* OUTER WRAPPER — the 1.5px padding gap IS the glowing border */
 .spotlight-wrapper {
   position: relative;
   border-radius: 1rem;
@@ -73,7 +112,6 @@ main {
   transition: background 0.3s ease;
 }
 
-/* BORDER GLOW — neon light follows cursor along the edge */
 .spotlight-wrapper::before {
   content: "";
   position: absolute;
@@ -90,11 +128,8 @@ main {
   z-index: 0;
 }
 
-.spotlight-wrapper:hover::before {
-  opacity: 1;
-}
+.spotlight-wrapper:hover::before { opacity: 1; }
 
-/* INNER CARD — solid bg so glow ONLY shows on the 1.5px edge */
 .spotlight-card {
   position: relative;
   overflow: hidden;
@@ -119,17 +154,14 @@ main {
     0 8px 24px -4px rgba(0, 0, 0, 0.4);
 }
 
-/* smooth snap back when mouse leaves */
 .spotlight-wrapper:not(:hover) .spotlight-card {
   transition:
     transform 0.5s cubic-bezier(0.03, 0.98, 0.52, 0.99),
     box-shadow 0.3s ease;
 }
 
-/* hide inner glow — edge only */
-.spotlight-inner {
-  display: none;
-}
+.spotlight-inner { display: none; }
+
 /* ══════════════════════════════════════════
    RPG × ISEKAI × HACKER — About Page
 ══════════════════════════════════════════ */
@@ -137,10 +169,8 @@ main {
 .scanlines {
   background: repeating-linear-gradient(
     to bottom,
-    transparent 0px,
-    transparent 3px,
-    rgba(0, 0, 0, 0.08) 3px,
-    rgba(0, 0, 0, 0.08) 4px
+    transparent 0px, transparent 3px,
+    rgba(0, 0, 0, 0.08) 3px, rgba(0, 0, 0, 0.08) 4px
   );
 }
 

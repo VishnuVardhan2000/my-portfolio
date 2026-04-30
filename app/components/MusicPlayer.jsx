@@ -2,95 +2,199 @@
 import { useRef, useState, useEffect } from "react";
 import { useTheme } from "../context/ThemeContext";
 
-function getAudio() {
+// ── 🎵 Add / remove tracks here only ─────────────────────────
+const TRACKS = [
+  { title: "Portfolio BGM",           file: "/portfoliobg.m4a",                    emoji: "🎵" },
+  { title: "Poster Boy",              file: "/music/2hollis - poster boy.mp3",      emoji: "🖤" },
+  { title: "Montagem Alquimia",       file: "/music/MONTAGEM ALQUIMIA (S).mp3",    emoji: "⚗️" },
+  { title: "Montagem Miau Remix",     file: "/music/MONTAGEM Miau Remix.mp3",      emoji: "🐱" },
+  { title: "Montagem Santa Fe 2",     file: "/music/MONTAGEM SANTA FE 2 (S).mp3", emoji: "🌵" },
+  { title: "MONTAGEM REBOLA",    file: "/music/MONTAGEM REBOLA.mp3",  emoji: "🫵" },
+];
+
+// ── Persistent audio across page navigations ──────────────────
+function getAudio(src) {
   if (typeof window === "undefined") return null;
-  // ← Stored on window — survives ALL Next.js page navigations
-  if (!window.__bgm__) {
-    window.__bgm__ = new Audio("/portfoliobg.m4a");
-    window.__bgm__.loop = true;
-    window.__bgm__.volume = 0.4;
-    window.__bgm__._playing = false;
-    window.__bgm__._vol = 0.4;
+  const full = new URL(src, window.location.href).href;
+  if (!window.__bgm__ || window.__bgm__._src !== full) {
+    if (window.__bgm__) window.__bgm__.pause();
+    const a = new Audio(src);
+    a.loop = false;
+    a.volume = window.__bgm__?._vol ?? 0.4;
+    a._playing = false;
+    a._vol = window.__bgm__?._vol ?? 0.4;
+    a._src = full;
+    window.__bgm__ = a;
   }
   return window.__bgm__;
 }
 
 export default function MusicPlayer() {
   const { accent } = useTheme();
-  const analyserRef  = useRef(null);
+  const c = accent || "168,85,247";
+
+  const [open,        setOpen]        = useState(false);
+  const [isPlaying,   setIsPlaying]   = useState(false);
+  const [volume,      setVolume]      = useState(0.4);
+  const [trackIdx,    setTrackIdx]    = useState(0);
+  const [beats,       setBeats]       = useState(Array(12).fill(2));
+  const [progress,    setProgress]    = useState(0);
+  const [currentTime, setCurrentTime] = useState(0);
+  const [duration,    setDuration]    = useState(0);
+
   const audioCtxRef  = useRef(null);
-  const animFrameRef = useRef(null);
-  const dragRef      = useRef({ dragging: false, startX: 0, startY: 0, initX: 0, initY: 0 });
+  const analyserRef  = useRef(null);
+  const animRef      = useRef(null);
+  const canvasRef    = useRef(null);
+  const particlesRef = useRef([]);
+  const popupRef     = useRef(null);
 
-  const [isPlaying, setIsPlaying] = useState(false);
-  const [volume,    setVolume]    = useState(0.4);
-  const [beats,     setBeats]     = useState(Array(10).fill(2));
-  const [visible,   setVisible]   = useState(false);
-  const [pos,       setPos]       = useState({ x: null, y: null });
-
-  // Sync UI with actual window.__bgm__ state on every mount/navigation
+  // Sync state on mount
   useEffect(() => {
-    const audio = getAudio();
+    const audio = getAudio(TRACKS[0].file);
     if (!audio) return;
     setIsPlaying(audio._playing);
     setVolume(audio._vol);
   }, []);
 
-  // Show player after a short delay
+  // Close popup on outside click
   useEffect(() => {
-    const t = setTimeout(() => setVisible(true), 1800);
-    return () => clearTimeout(t);
+    const handler = (e) => {
+      if (popupRef.current && !popupRef.current.contains(e.target)) setOpen(false);
+    };
+    document.addEventListener("mousedown", handler);
+    return () => document.removeEventListener("mousedown", handler);
   }, []);
 
-  // Default position bottom-right
+  // Track time + auto advance
   useEffect(() => {
-    if (typeof window !== "undefined" && pos.x === null) {
-      setPos({ x: window.innerWidth - 158, y: window.innerHeight - 260 });
-    }
-  }, [pos.x]);
+    const audio = getAudio(TRACKS[trackIdx].file);
+    if (!audio) return;
+    const onTime = () => {
+      setCurrentTime(audio.currentTime);
+      setDuration(audio.duration || 0);
+      setProgress(audio.duration ? (audio.currentTime / audio.duration) * 100 : 0);
+    };
+    const onEnd = () => switchTrack((trackIdx + 1) % TRACKS.length);
+    audio.addEventListener("timeupdate", onTime);
+    audio.addEventListener("ended", onEnd);
+    return () => {
+      audio.removeEventListener("timeupdate", onTime);
+      audio.removeEventListener("ended", onEnd);
+    };
+  }, [trackIdx]);
 
-  // Beat visualizer loop
+  // ── Canvas page effects (particles + aura glow) ───────────────
   useEffect(() => {
-    const tick = () => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext("2d");
+
+    const resize = () => {
+      canvas.width  = window.innerWidth;
+      canvas.height = window.innerHeight;
+      particlesRef.current = Array.from({ length: 70 }, () => ({
+        x:      Math.random() * window.innerWidth,
+        y:      Math.random() * window.innerHeight,
+        size:   Math.random() * 1.8 + 0.4,
+        speedX: (Math.random() - 0.5) * 0.25,
+        speedY: (Math.random() - 0.5) * 0.25,
+        op:     Math.random() * 0.25 + 0.05,
+        burst:  0,
+      }));
+    };
+    resize();
+    window.addEventListener("resize", resize);
+
+    const [r, g, b] = c.split(",").map(Number);
+
+    const draw = () => {
+      const w = canvas.width, h = canvas.height;
+      ctx.clearRect(0, 0, w, h);
+
+      let bass = 0;
       if (analyserRef.current) {
         const data = new Uint8Array(analyserRef.current.frequencyBinCount);
         analyserRef.current.getByteFrequencyData(data);
-        setBeats(
-          Array.from({ length: 10 }, (_, i) => {
-            const val = data[Math.floor((i / 10) * data.length)];
-            return isPlaying ? Math.max(2, (val / 255) * 22) : 2;
-          })
-        );
-      }
-      animFrameRef.current = requestAnimationFrame(tick);
-    };
-    animFrameRef.current = requestAnimationFrame(tick);
-    return () => cancelAnimationFrame(animFrameRef.current);
-  }, [isPlaying]);
+        bass = (data[0] + data[1] + data[2]) / (3 * 255);
 
-  // Init Web Audio analyser only once per window.__bgm__
-  const initAnalyser = () => {
-    const audio = getAudio();
-    if (!audio || audioCtxRef.current) return;
-    const ctx = new (window.AudioContext || window.webkitAudioContext)();
-    audioCtxRef.current = ctx;
+        // Update EQ bars for popup
+        if (isPlaying) {
+          setBeats(Array.from({ length: 12 }, (_, i) => {
+            const val = data[Math.floor((i / 12) * (data.length / 3))];
+            return Math.max(2, (val / 255) * 28);
+          }));
+        }
+      }
+      if (!isPlaying) setBeats(Array(12).fill(2));
+
+      // ── Aura radial glow on bass hit ──
+      if (isPlaying && bass > 0.25) {
+        const grad = ctx.createRadialGradient(w / 2, h / 2, 0, w / 2, h / 2, w * 0.85);
+        grad.addColorStop(0,   `rgba(${r},${g},${b},${bass * 0.10})`);
+        grad.addColorStop(0.5, `rgba(${r},${g},${b},${bass * 0.045})`);
+        grad.addColorStop(1,   `rgba(${r},${g},${b},0)`);
+        ctx.fillStyle = grad;
+        ctx.fillRect(0, 0, w, h);
+      }
+
+      // ── Edge vignette bloom ──
+      if (isPlaying && bass > 0.45) {
+        const edge = ctx.createRadialGradient(w/2, h/2, w*0.4, w/2, h/2, w*0.85);
+        edge.addColorStop(0, `rgba(${r},${g},${b},0)`);
+        edge.addColorStop(1, `rgba(${r},${g},${b},${bass * 0.12})`);
+        ctx.fillStyle = edge;
+        ctx.fillRect(0, 0, w, h);
+      }
+
+      // ── Floating particles ──
+      particlesRef.current.forEach((p) => {
+        if (isPlaying && bass > 0.5) p.burst = Math.min(p.burst + bass * 4, 10);
+        else p.burst *= 0.90;
+
+        p.x += p.speedX + (Math.random() - 0.5) * p.burst * 0.4;
+        p.y += p.speedY - p.burst * 0.25;
+
+        if (p.x < 0) p.x = w;
+        if (p.x > w) p.x = 0;
+        if (p.y < 0) p.y = h;
+        if (p.y > h) p.y = 0;
+
+        const opacity = isPlaying ? Math.min(p.op + bass * 0.5, 0.85) : p.op * 0.4;
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.size + p.burst * 0.25, 0, Math.PI * 2);
+        ctx.fillStyle = `rgba(${r},${g},${b},${opacity})`;
+        ctx.fill();
+      });
+
+      animRef.current = requestAnimationFrame(draw);
+    };
+
+    animRef.current = requestAnimationFrame(draw);
+    return () => {
+      cancelAnimationFrame(animRef.current);
+      window.removeEventListener("resize", resize);
+    };
+  }, [isPlaying, c]);
+
+  // Init Web Audio analyser
+  const initAnalyser = (audio) => {
+    if (audioCtxRef.current || !audio) return;
+    const ctx     = new (window.AudioContext || window.webkitAudioContext)();
     const source  = ctx.createMediaElementSource(audio);
     const analyser = ctx.createAnalyser();
-    analyser.fftSize = 64;
+    analyser.fftSize = 128;
     source.connect(analyser);
     analyser.connect(ctx.destination);
+    audioCtxRef.current = ctx;
     analyserRef.current = analyser;
   };
 
   const togglePlay = async () => {
-    const audio = getAudio();
+    const audio = getAudio(TRACKS[trackIdx].file);
     if (!audio) return;
-    initAnalyser();
-
-    if (audioCtxRef.current?.state === "suspended") {
-      await audioCtxRef.current.resume();
-    }
-
+    initAnalyser(audio);
+    if (audioCtxRef.current?.state === "suspended") await audioCtxRef.current.resume();
     if (audio._playing) {
       audio.pause();
       audio._playing = false;
@@ -100,155 +204,227 @@ export default function MusicPlayer() {
         await audio.play();
         audio._playing = true;
         setIsPlaying(true);
-      } catch (e) {
-        console.error("Playback error:", e);
-      }
+      } catch (e) { console.error(e); }
     }
+  };
+
+  const switchTrack = async (idx) => {
+    if (window.__bgm__) { window.__bgm__.pause(); window.__bgm__._playing = false; }
+    if (audioCtxRef.current) { await audioCtxRef.current.close(); audioCtxRef.current = null; analyserRef.current = null; }
+    window.__bgm__ = null;
+    setTrackIdx(idx);
+    setProgress(0); setCurrentTime(0);
+
+    const audio = getAudio(TRACKS[idx].file);
+    if (!audio) return;
+    initAnalyser(audio);
+    try {
+      await audio.play();
+      audio._playing = true;
+      setIsPlaying(true);
+    } catch (e) { console.error(e); }
   };
 
   const handleVolume = (e) => {
     const val = parseFloat(e.target.value);
-    const audio = getAudio();
+    const audio = getAudio(TRACKS[trackIdx].file);
     if (audio) { audio.volume = val; audio._vol = val; }
     setVolume(val);
   };
 
-  // Drag handlers
-  const onMouseDown = (e) => {
-    if (e.target.tagName === "INPUT" || e.target.tagName === "BUTTON") return;
-    dragRef.current = {
-      dragging: true,
-      startX: e.clientX, startY: e.clientY,
-      initX: pos.x,      initY: pos.y,
-    };
-    e.preventDefault();
+  const handleSeek = (e) => {
+    const audio = getAudio(TRACKS[trackIdx].file);
+    if (!audio?.duration) return;
+    const rect = e.currentTarget.getBoundingClientRect();
+    audio.currentTime = ((e.clientX - rect.left) / rect.width) * audio.duration;
   };
 
-  useEffect(() => {
-    const onMove = (e) => {
-      if (!dragRef.current.dragging) return;
-      setPos({
-        x: Math.max(0, Math.min(window.innerWidth  - 140, dragRef.current.initX + (e.clientX - dragRef.current.startX))),
-        y: Math.max(0, Math.min(window.innerHeight - 240, dragRef.current.initY + (e.clientY - dragRef.current.startY))),
-      });
-    };
-    const onUp = () => { dragRef.current.dragging = false; };
-    window.addEventListener("mousemove", onMove);
-    window.addEventListener("mouseup",   onUp);
-    return () => {
-      window.removeEventListener("mousemove", onMove);
-      window.removeEventListener("mouseup",   onUp);
-    };
-  }, []);
-
-  if (pos.x === null) return null;
-
-  const c = accent || "168,85,247";
+  const fmt = (s) => !s || isNaN(s) ? "0:00"
+    : `${Math.floor(s / 60)}:${String(Math.floor(s % 60)).padStart(2, "0")}`;
 
   return (
     <>
-      <div
-        onMouseDown={onMouseDown}
-        className="fixed z-50 flex flex-col items-center gap-2 px-3 py-3 rounded-xl select-none"
-        style={{
-          left: `${pos.x}px`,
-          top: `${pos.y}px`,
-          width: "124px",
-          background: "rgba(10,10,18,0.88)",
-          border: `1px solid rgba(${c},0.22)`,
-          boxShadow: `0 0 30px rgba(${c},0.05) inset`,
-          backdropFilter: "blur(16px)",
-          cursor: "grab",
-          opacity: visible ? 1 : 0,
-          transform: visible ? "scale(1) translateY(0)" : "scale(0.93) translateY(12px)",
-          transition: "opacity 0.5s ease, transform 0.5s ease, border-color 0.5s ease",
-        }}
-      >
-        {/* RPG corner brackets */}
-        {[
-          { top:"-1px",    left:"-1px",  bt:true, bl:true, r:"2px 0 0 0" },
-          { top:"-1px",    right:"-1px", bt:true, br:true, r:"0 2px 0 0" },
-          { bottom:"-1px", left:"-1px",  bb:true, bl:true, r:"0 0 0 2px" },
-          { bottom:"-1px", right:"-1px", bb:true, br:true, r:"0 0 2px 0" },
-        ].map((corner, i) => (
-          <span key={i} className="absolute w-2.5 h-2.5 pointer-events-none" style={{
-            top: corner.top, left: corner.left,
-            right: corner.right, bottom: corner.bottom,
-            borderTop:    corner.bt ? `2px solid rgba(${c},0.85)` : undefined,
-            borderLeft:   corner.bl ? `2px solid rgba(${c},0.85)` : undefined,
-            borderRight:  corner.br ? `2px solid rgba(${c},0.85)` : undefined,
-            borderBottom: corner.bb ? `2px solid rgba(${c},0.85)` : undefined,
-            borderRadius: corner.r,
-            transition: "border-color 0.5s ease",
-          }} />
-        ))}
+      {/* ── Full-page beat canvas (behind all content) ── */}
+      <canvas
+        ref={canvasRef}
+        className="fixed inset-0 pointer-events-none"
+        style={{ zIndex: 1 }}
+      />
 
-        {/* // BGM label */}
-        <div className="absolute -top-3 left-3 pointer-events-none">
-          <span className="font-mono text-[9px] font-bold tracking-widest px-1.5 py-0.5 rounded"
+      {/* ── Navbar button + popup ── */}
+      <div className="relative" ref={popupRef}>
+
+        {/* Trigger button */}
+<button
+  onClick={() => setOpen((o) => !o)}
+  className="relative flex items-center justify-center gap-[2px] px-2 h-9 rounded-lg transition-all duration-200"
+  style={{
+    background: open || isPlaying ? `rgba(${c},0.12)` : "transparent",
+    border: `1px solid rgba(${c},${open || isPlaying ? 0.4 : 0.18})`,
+    minWidth: "36px",
+  }}
+  aria-label="Music player"
+>
+  {/* Pulsing pip when playing */}
+  {isPlaying && (
+    <span className="absolute top-1.5 right-1.5 w-1.5 h-1.5 rounded-full"
+      style={{ background: `rgba(${c},1)`, animation: "mp-pulse 1.4s ease-in-out infinite" }} />
+  )}
+
+  {/* Show EQ bars when playing, icon when not */}
+  {isPlaying ? (
+    <div className="flex items-end gap-[2px] h-4">
+      {beats.slice(0, 5).map((h, i) => (
+        <div key={i} style={{
+          width: "3px",
+          height: `${Math.max(3, (h / 28) * 16)}px`,
+          borderRadius: "2px",
+          background: `rgba(${c},${0.5 + (h / 28) * 0.5})`,
+          boxShadow: h > 14 ? `0 0 4px rgba(${c},0.8)` : "none",
+          transition: "height 0.07s ease",
+        }} />
+      ))}
+    </div>
+  ) : (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none"
+      stroke={`rgba(${c},0.8)`} strokeWidth="2">
+      <path d="M9 18V5l12-2v13"/>
+      <circle cx="6" cy="18" r="3"/>
+      <circle cx="18" cy="16" r="3"/>
+    </svg>
+  )}
+</button>
+
+        {/* ── Popup panel ── */}
+        {open && (
+          <div className="absolute right-0 mt-2 rounded-xl overflow-visible"
             style={{
-              color: `rgba(${c},1)`,
-              background: "#0a0a12",
-              border: `1px solid rgba(${c},0.28)`,
-              transition: "color 0.5s ease, border-color 0.5s ease",
+              width: "262px",
+              background: "rgba(10,10,18,0.97)",
+              border: `1px solid rgba(${c},0.22)`,
+              boxShadow: `0 0 40px rgba(${c},0.12), 0 20px 60px rgba(0,0,0,0.7)`,
+              backdropFilter: "blur(20px)",
+              zIndex: 9999,
             }}>
-            // BGM
-          </span>
-        </div>
 
-        {/* Beat visualizer */}
-        <div className="flex items-end gap-[2px] h-6 mt-1">
-          {beats.map((h, i) => (
-            <div key={i} style={{
-              width: "4px",
-              height: `${h}px`,
-              borderRadius: "2px",
-              background: isPlaying
-                ? `rgba(${c},${0.35 + (h / 22) * 0.65})`
-                : `rgba(${c},0.15)`,
-              boxShadow: isPlaying && h > 11
-                ? `0 0 5px rgba(${c},0.75)`
-                : "none",
-              transition: "height 0.07s ease, background 0.5s ease",
-            }} />
-          ))}
-        </div>
+            {/* RPG corner brackets */}
+            {[
+              { top:0,    left:0,    bt:true,  bl:true,  br_:"2px 0 0 0" },
+              { top:0,    right:0,   bt:true,  br:true,  br_:"0 2px 0 0" },
+              { bottom:0, left:0,    bb:true,  bl:true,  br_:"0 0 0 2px" },
+              { bottom:0, right:0,   bb:true,  br:true,  br_:"0 0 2px 0" },
+            ].map((corner, i) => (
+              <span key={i} className="absolute w-3 h-3 pointer-events-none" style={{
+                top: corner.top, left: corner.left, right: corner.right, bottom: corner.bottom,
+                borderTop:    corner.bt ? `2px solid rgba(${c},0.85)` : undefined,
+                borderLeft:   corner.bl ? `2px solid rgba(${c},0.85)` : undefined,
+                borderRight:  corner.br ? `2px solid rgba(${c},0.85)` : undefined,
+                borderBottom: corner.bb ? `2px solid rgba(${c},0.85)` : undefined,
+                borderRadius: corner.br_,
+              }} />
+            ))}
 
-        {/* Play / Pause button */}
-        <button onClick={togglePlay}
-          className="font-mono text-[10px] font-bold px-2 py-1 rounded-lg w-full"
-          style={{
-            background: isPlaying ? `rgba(${c},0.18)` : `rgba(${c},0.07)`,
-            border: `1px solid rgba(${c},0.3)`,
-            color: `rgba(${c},1)`,
-            cursor: "pointer",
-            letterSpacing: "0.06em",
-            transition: "background 0.2s ease",
-          }}>
-          {isPlaying ? "⏸ PAUSE" : "▶ PLAY"}
-        </button>
+            <div className="p-4">
 
-        {/* Volume % */}
-        <span className="font-mono text-[9px]"
-          style={{ color: `rgba(${c},0.45)`, transition: "color 0.5s ease" }}>
-          VOL {Math.round(volume * 100)}%
-        </span>
+              {/* Header */}
+              <div className="flex items-center justify-between mb-3">
+                <span className="font-mono text-[9px] font-bold tracking-widest px-1.5 py-0.5 rounded"
+                  style={{ color:`rgba(${c},1)`, border:`1px solid rgba(${c},0.28)`, background:"rgba(10,10,18,0.8)" }}>
+                  // BGM
+                </span>
+                <span className="font-mono text-[10px] truncate max-w-[130px]"
+                  style={{ color:`rgba(${c},0.7)` }}>
+                  {TRACKS[trackIdx].emoji} {TRACKS[trackIdx].title}
+                </span>
+              </div>
 
-        {/* Vertical volume slider */}
-        <input
-          type="range" min="0" max="1" step="0.01"
-          value={volume} onChange={handleVolume}
-          style={{
-            writingMode: "vertical-lr",
-            direction: "rtl",
-            height: "58px",
-            width: "6px",
-            cursor: "pointer",
-            accentColor: `rgba(${c},1)`,
-            WebkitAppearance: "slider-vertical",
-          }}
-        />
+              {/* EQ bars */}
+              <div className="flex items-end gap-[3px] h-8 mb-3 justify-center">
+                {beats.map((h, i) => (
+                  <div key={i} style={{
+                    width: "14px", height: `${h}px`, borderRadius: "2px",
+                    background: isPlaying ? `rgba(${c},${0.35 + (h/28)*0.65})` : `rgba(${c},0.15)`,
+                    boxShadow: isPlaying && h > 14 ? `0 0 6px rgba(${c},0.8)` : "none",
+                    transition: "height 0.07s ease",
+                  }} />
+                ))}
+              </div>
+
+              {/* Progress bar */}
+              <div className="mb-3">
+                <div className="w-full h-1 rounded-full cursor-pointer mb-1"
+                  style={{ background:`rgba(${c},0.15)` }} onClick={handleSeek}>
+                  <div className="h-full rounded-full"
+                    style={{ width:`${progress}%`, background:`rgba(${c},0.9)`,
+                             boxShadow:`0 0 6px rgba(${c},0.6)`, transition:"width 0.3s linear" }} />
+                </div>
+                <div className="flex justify-between">
+                  <span className="font-mono text-[9px]" style={{ color:`rgba(${c},0.4)` }}>{fmt(currentTime)}</span>
+                  <span className="font-mono text-[9px]" style={{ color:`rgba(${c},0.4)` }}>{fmt(duration)}</span>
+                </div>
+              </div>
+
+              {/* Controls */}
+              <div className="flex items-center justify-center gap-3 mb-3">
+                <button onClick={() => switchTrack((trackIdx - 1 + TRACKS.length) % TRACKS.length)}
+                  style={{ color:`rgba(${c},0.7)`, background:"none", border:"none", cursor:"pointer", fontSize:"14px" }}>⏮</button>
+                <button onClick={togglePlay}
+                  className="font-mono text-[10px] font-bold px-4 py-1.5 rounded-lg"
+                  style={{
+                    background: isPlaying ? `rgba(${c},0.18)` : `rgba(${c},0.07)`,
+                    border:`1px solid rgba(${c},0.3)`, color:`rgba(${c},1)`,
+                    cursor:"pointer", letterSpacing:"0.06em",
+                  }}>
+                  {isPlaying ? "⏸ PAUSE" : "▶ PLAY"}
+                </button>
+                <button onClick={() => switchTrack((trackIdx + 1) % TRACKS.length)}
+                  style={{ color:`rgba(${c},0.7)`, background:"none", border:"none", cursor:"pointer", fontSize:"14px" }}>⏭</button>
+              </div>
+
+              {/* Volume */}
+              <div className="flex items-center gap-2 mb-3">
+                <span className="font-mono text-[9px]" style={{ color:`rgba(${c},0.4)` }}>VOL</span>
+                <input type="range" min="0" max="1" step="0.01" value={volume} onChange={handleVolume}
+                  className="flex-1 cursor-pointer" style={{ accentColor:`rgba(${c},1)`, height:"3px" }} />
+                <span className="font-mono text-[9px]" style={{ color:`rgba(${c},0.4)` }}>{Math.round(volume*100)}%</span>
+              </div>
+
+              {/* Track queue */}
+              <div className="border-t pt-2" style={{ borderColor:`rgba(${c},0.1)` }}>
+                <p className="font-mono text-[8px] tracking-widest uppercase mb-1.5"
+                  style={{ color:`rgba(${c},0.35)` }}>Queue</p>
+                <div className="flex flex-col gap-0.5">
+                  {TRACKS.map((track, i) => (
+                    <button key={i} onClick={() => switchTrack(i)}
+                      className="flex items-center gap-2 px-2 py-1.5 rounded-lg text-left w-full transition-all"
+                      style={{
+                        background: i === trackIdx ? `rgba(${c},0.12)` : "transparent",
+                        border: i === trackIdx ? `1px solid rgba(${c},0.2)` : "1px solid transparent",
+                        cursor:"pointer",
+                      }}>
+                      <span className="text-xs">{track.emoji}</span>
+                      <span className="font-mono text-[10px] flex-1 truncate"
+                        style={{ color: i === trackIdx ? `rgba(${c},1)` : `rgba(${c},0.45)` }}>
+                        {track.title}
+                      </span>
+                      {i === trackIdx && isPlaying && (
+                        <span className="font-mono text-[8px]" style={{ color:`rgba(${c},0.7)` }}>▶</span>
+                      )}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
+
+      <style>{`
+        @keyframes mp-pulse {
+          0%,100% { opacity:1; transform:scale(1); }
+          50% { opacity:0.35; transform:scale(0.65); }
+        }
+      `}</style>
     </>
   );
 }

@@ -1,13 +1,14 @@
 "use client";
 import { useState } from "react";
 import { usePathname } from "next/navigation";
+import MusicPlayer from "./MusicPlayer";
 
 const LINKS = [
-  { label: "Home",     href: "/",        color: "168,85,247",  hex: "#c084fc" }, // purple
-  { label: "About",    href: "/about",   color: "0,255,136",   hex: "#00ff88" }, // green
-  { label: "Projects", href: "/projects",color: "96,165,250",  hex: "#60a5fa" }, // blue
-  { label: "Resume",   href: "/resume",  color: "251,191,36",  hex: "#fbbf24" }, // gold
-  { label: "Contact",  href: "/contact", color: "236,72,153",  hex: "#ec4899" }, // pink
+  { label: "Home",     href: "/",         color: "168,85,247",  hex: "#c084fc" },
+  { label: "About",    href: "/about",    color: "0,255,136",   hex: "#00ff88" },
+  { label: "Projects", href: "/projects", color: "96,165,250",  hex: "#60a5fa" },
+  { label: "Resume",   href: "/resume",   color: "251,191,36",  hex: "#fbbf24" },
+  { label: "Contact",  href: "/contact",  color: "236,72,153",  hex: "#ec4899" },
 ];
 
 export default function Navbar() {
@@ -44,16 +45,26 @@ export default function Navbar() {
         })}
       </nav>
 
-      {/* Mobile Hamburger */}
-      <button className="md:hidden flex flex-col gap-1.5 p-2 rounded-lg hover:bg-white/5 transition"
-        onClick={() => setOpen(!open)} aria-label="Toggle menu">
-        <span className="block w-5 h-0.5 bg-white/70 transition-all duration-300 origin-center"
-          style={open ? { transform:"translateY(8px) rotate(45deg)" } : {}} />
-        <span className="block w-5 h-0.5 bg-white/70 transition-all duration-300"
-          style={open ? { opacity:0 } : {}} />
-        <span className="block w-5 h-0.5 bg-white/70 transition-all duration-300 origin-center"
-          style={open ? { transform:"translateY(-8px) rotate(-45deg)" } : {}} />
-      </button>
+      {/* ── Right side: Music Player + Mobile Hamburger ── */}
+      <div className="flex items-center gap-3">
+
+        {/* 🎵 Music Player — visible on all screen sizes */}
+        <MusicPlayer />
+
+        {/* Mobile Hamburger */}
+        <button
+          className="md:hidden flex flex-col gap-1.5 p-2 rounded-lg hover:bg-white/5 transition"
+          onClick={() => setOpen(!open)}
+          aria-label="Toggle menu"
+        >
+          <span className="block w-5 h-0.5 bg-white/70 transition-all duration-300 origin-center"
+            style={open ? { transform: "translateY(8px) rotate(45deg)" } : {}} />
+          <span className="block w-5 h-0.5 bg-white/70 transition-all duration-300"
+            style={open ? { opacity: 0 } : {}} />
+          <span className="block w-5 h-0.5 bg-white/70 transition-all duration-300 origin-center"
+            style={open ? { transform: "translateY(-8px) rotate(-45deg)" } : {}} />
+        </button>
+      </div>
 
       {/* Mobile Menu */}
       {open && (
@@ -65,8 +76,8 @@ export default function Navbar() {
                 onClick={() => setOpen(false)}
                 className="px-6 py-3 text-sm font-medium transition-colors duration-200"
                 style={active
-                  ? { color: item.hex, textShadow:`0 0 8px rgba(${item.color},0.7)` }
-                  : { color:"rgba(255,255,255,0.65)" }}>
+                  ? { color: item.hex, textShadow: `0 0 8px rgba(${item.color},0.7)` }
+                  : { color: "rgba(255,255,255,0.65)" }}>
                 {active ? "▸ " : ""}{item.label}
               </a>
             );
@@ -75,7 +86,6 @@ export default function Navbar() {
       )}
 
       <style>{`
-        /* ── VD. aurora prism glow ── */
         @keyframes aurora {
           0%   { color: #c084fc; text-shadow: 0 0 10px rgba(192,132,252,0.9), 0 0 25px rgba(192,132,252,0.5), 0 0 50px rgba(192,132,252,0.2); }
           20%  { color: #60a5fa; text-shadow: 0 0 10px rgba(96,165,250,0.9),  0 0 25px rgba(96,165,250,0.5),  0 0 50px rgba(96,165,250,0.2); }
@@ -89,8 +99,6 @@ export default function Navbar() {
           text-decoration: none;
           transition: none;
         }
-
-        /* ── Nav links ── */
         .nav-word {
           padding: 8px 12px;
           border-radius: 8px;
