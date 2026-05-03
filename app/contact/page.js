@@ -1,6 +1,8 @@
 "use client";
 import { useState, useRef, useCallback } from "react";
 import emailjs from "@emailjs/browser";
+const { setAccent } = useTheme();
+useEffect(() => { setAccent("236,72,153"); }, [setAccent]);
 
 const EMAILJS_SERVICE_ID  = "service_38qh568";
 const EMAILJS_TEMPLATE_ID = "template_qbr6yyh";

@@ -1,6 +1,8 @@
 "use client";
 import { useRef, useCallback, useState, useEffect } from "react";
 import { useTheme } from "../context/ThemeContext"; // ← ADDED
+const { setAccent } = useTheme();
+useEffect(() => { setAccent("96,165,250"); }, [setAccent]);
 
 const BOOT_LINES = [
   "> INITIALIZING PROJECT VAULT...",

@@ -2,6 +2,11 @@
 import { useRef, useEffect, useState, useCallback } from "react";
 import Link from "next/link";
 import { COMMANDS, NOT_FOUND, TERM_ACCENT, CHIP_COMMANDS } from "../lib/terminalCommands";
+import { useTheme } from "../context/ThemeContext";
+
+// inside the component:
+const { setAccent } = useTheme();
+useEffect(() => { setAccent("168,85,247"); }, [setAccent]);
 
 const TA = `rgba(${TERM_ACCENT},`;
 

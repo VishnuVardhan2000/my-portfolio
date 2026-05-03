@@ -1,6 +1,8 @@
 "use client";
 import { useState, useRef, useCallback, useEffect } from "react";
 import { useTheme } from "../context/ThemeContext"; // ← ADDED
+const { setAccent } = useTheme();
+useEffect(() => { setAccent("251,191,36"); }, [setAccent]);
 
 const BOOT_LINES = [
   "> ACCESSING SECURE VAULT...",

@@ -1,7 +1,8 @@
 "use client";
 import { useEffect, useRef, useState, useCallback } from "react";
 import { useTheme } from "../context/ThemeContext";
-
+const { setAccent } = useTheme();
+useEffect(() => { setAccent("0,255,136"); }, [setAccent]);
 const PLAYER = {
   name: "Vardhan Doharey",
   class: "Full Stack Developer",
