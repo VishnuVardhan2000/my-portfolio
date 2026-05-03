@@ -4,9 +4,6 @@ import Link from "next/link";
 import { COMMANDS, NOT_FOUND, TERM_ACCENT, CHIP_COMMANDS } from "../lib/terminalCommands";
 import { useTheme } from "../context/ThemeContext";
 
-// inside the component:
-const { setAccent } = useTheme();
-useEffect(() => { setAccent("168,85,247"); }, [setAccent]);
 
 const TA = `rgba(${TERM_ACCENT},`;
 
@@ -325,6 +322,9 @@ const projects = [
 
 // ── Main Export ──────────────────────────────────────────────
 export default function Home() {
+  const { setAccent } = useTheme();
+  useEffect(() => { setAccent("168,85,247"); }, [setAccent]);
+
   const [booted, setBooted]             = useState(false);
   const [statsVisible, setStatsVisible] = useState(false);
   const statsRef   = useRef(null);
