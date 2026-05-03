@@ -213,3 +213,36 @@ canvas.beat-canvas {
 /* ── Cursor blink ── */
 @keyframes cursor-blink { 0%,100%{opacity:1} 50%{opacity:0} }
 .cursor-blink { animation: cursor-blink 1s step-end infinite; }
+/* ── Keyboard key chip style ── */
+.kbd-key {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4px 10px;
+  border-radius: 6px;
+  background: rgba(10, 16, 10, 0.95);
+  border: 1px solid rgba(74,222,128,0.25);
+  border-bottom: 3px solid rgba(74,222,128,0.4);
+  box-shadow:
+    0 2px 0 rgba(0,0,0,0.6),
+    inset 0 1px 0 rgba(74,222,128,0.07);
+  cursor: pointer;
+  transition: all 0.1s ease;
+  user-select: none;
+  font-family: 'Courier New', monospace;
+  letter-spacing: 0.05em;
+}
+.kbd-key:hover {
+  background: rgba(74,222,128,0.07);
+  border-color: rgba(74,222,128,0.5);
+  border-bottom-color: rgba(74,222,128,0.65);
+  box-shadow:
+    0 2px 0 rgba(0,0,0,0.5),
+    0 0 10px rgba(74,222,128,0.18),
+    inset 0 1px 0 rgba(74,222,128,0.1);
+}
+.kbd-key:active {
+  transform: translateY(2px);
+  border-bottom-width: 1px;
+  box-shadow: 0 0 4px rgba(74,222,128,0.15);
+}
