@@ -1,6 +1,5 @@
 "use client";
-import { useState, useRef, useCallback, useEffect } from "react"; // ← ADDED useEffect
-import { useTheme } from "../context/ThemeContext"; // ← ADDED
+import { useState, useRef, useCallback } from "react";
 import emailjs from "@emailjs/browser";
 
 const EMAILJS_SERVICE_ID  = "service_38qh568";
@@ -38,7 +37,8 @@ function RPGFrame({ children, title, accent = "236,72,153" }) {
       className="rpg-frame-contact relative rounded-xl p-6"
       style={{
         "--mx":"-999px","--my":"-999px","--mo":"0","--rpg-c":accent,
-        border:`1px solid ${c}0.2)`, background:`${c}0.02)`,
+        border:`1px solid ${c}0.2)`,
+        background:`${c}0.02)`,
         boxShadow:`0 0 40px ${c}0.04) inset`,
       }}>
       <span className="absolute top-[-1px] left-[-1px] w-3 h-3 pointer-events-none"
@@ -66,7 +66,8 @@ function TerminalInput({ label, name, value, onChange, type="text", required, ac
   const [focused, setFocused] = useState(false);
   return (
     <div className="space-y-1.5">
-      <label className="font-mono text-[11px] tracking-widest uppercase" style={{ color:`rgba(${accent},0.7)` }}>
+      <label className="font-mono text-[11px] tracking-widest uppercase"
+        style={{ color:`rgba(${accent},0.7)` }}>
         &gt; {label}
       </label>
       <div className="flex items-center gap-2 rounded-lg px-3 py-2.5 transition-all duration-200"
@@ -80,7 +81,9 @@ function TerminalInput({ label, name, value, onChange, type="text", required, ac
           onFocus={() => setFocused(true)} onBlur={() => setFocused(false)}
           className="flex-1 bg-transparent outline-none font-mono text-sm text-gray-200 placeholder-gray-600"
           placeholder={`enter ${label.toLowerCase()}...`} autoComplete="off" />
-        {focused && <span className="font-mono text-sm animate-pulse" style={{ color:`rgba(${accent},0.8)` }}>▌</span>}
+        {focused && (
+          <span className="font-mono text-sm animate-pulse" style={{ color:`rgba(${accent},0.8)` }}>▌</span>
+        )}
       </div>
     </div>
   );
@@ -90,7 +93,8 @@ function TerminalTextarea({ label, name, value, onChange, accent="236,72,153" })
   const [focused, setFocused] = useState(false);
   return (
     <div className="space-y-1.5">
-      <label className="font-mono text-[11px] tracking-widest uppercase" style={{ color:`rgba(${accent},0.7)` }}>
+      <label className="font-mono text-[11px] tracking-widest uppercase"
+        style={{ color:`rgba(${accent},0.7)` }}>
         &gt; {label}
       </label>
       <div className="rounded-lg px-3 py-2.5 transition-all duration-200"
@@ -100,7 +104,8 @@ function TerminalTextarea({ label, name, value, onChange, accent="236,72,153" })
           boxShadow: focused ? `0 0 16px rgba(${accent},0.1)` : "none",
         }}>
         <div className="flex gap-2">
-          <span className="font-mono text-sm mt-0.5 flex-shrink-0" style={{ color:`rgba(${accent},0.6)` }}>$</span>
+          <span className="font-mono text-sm mt-0.5 flex-shrink-0"
+            style={{ color:`rgba(${accent},0.6)` }}>$</span>
           <textarea name={name} value={value} onChange={onChange} required rows={5}
             onFocus={() => setFocused(true)} onBlur={() => setFocused(false)}
             className="flex-1 bg-transparent outline-none font-mono text-sm text-gray-200 placeholder-gray-600 resize-none"
@@ -112,12 +117,8 @@ function TerminalTextarea({ label, name, value, onChange, accent="236,72,153" })
 }
 
 export default function ContactPage() {
-  const { setAccent } = useTheme(); // ← ADDED
   const [form, setForm]     = useState({ name:"", email:"", subject:"", message:"" });
   const [status, setStatus] = useState("idle");
-
-  // ← ADDED — set pink on mount
-  useEffect(() => { setAccent("244,114,182"); }, [setAccent]);
 
   const handleChange = (e) => setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
 
@@ -142,6 +143,7 @@ export default function ContactPage() {
     <>
       <div className="scanlines pointer-events-none fixed inset-0 z-20" />
 
+      {/* Ambient orbs */}
       <div className="fixed top-[-200px] right-[-100px] w-[600px] h-[600px] bg-pink-900/[0.07] rounded-full blur-[180px] pointer-events-none" />
       <div className="fixed bottom-[-150px] left-[-100px] w-[500px] h-[500px] bg-rose-900/[0.05] rounded-full blur-[160px] pointer-events-none" />
 
@@ -154,7 +156,7 @@ export default function ContactPage() {
           pointer-events:none;
         }
         .contact-title-glow {
-          color: #fff;
+          color: #ffffff;
           text-shadow: none;
           transition: text-shadow 0.35s ease, color 0.35s ease;
           cursor: default;
@@ -166,10 +168,11 @@ export default function ContactPage() {
             0 0 8px rgba(236,72,153,1),
             0 0 20px rgba(236,72,153,0.8),
             0 0 40px rgba(236,72,153,0.5),
-            0 0 80px rgba(236,72,153,0.25) !important;
+            0 0 80px rgba(236,72,153,0.25);
         }
         .rpg-frame-contact {
-          transition: transform 0.3s cubic-bezier(0.16,1,0.3,1);
+          transition: transform 0.3s cubic-bezier(0.16,1,0.3,1),
+                      box-shadow 0.3s cubic-bezier(0.16,1,0.3,1);
         }
         .rpg-frame-contact:hover { transform: translateY(-2px); }
         .rpg-frame-contact::before {
@@ -194,10 +197,12 @@ export default function ContactPage() {
 
         {/* Header */}
         <div className="text-center space-y-3">
-          <p className="font-mono text-xs tracking-[0.25em] uppercase" style={{ color:"rgba(236,72,153,0.6)" }}>
+          <p className="font-mono text-xs tracking-[0.25em] uppercase"
+            style={{ color:"rgba(236,72,153,0.6)" }}>
             &gt; INITIATING CONTACT PROTOCOL...
           </p>
-          <h1 className="text-4xl md:text-5xl font-bold font-mono" style={{ letterSpacing:"0.04em" }}>
+          <h1 className="text-4xl md:text-5xl font-bold font-mono"
+            style={{ letterSpacing:"0.04em" }}>
             <span className="contact-title-glow">Send a Message</span>
           </h1>
           <p className="text-gray-400 text-sm font-mono">
@@ -210,11 +215,15 @@ export default function ContactPage() {
         <RPGFrame title="TRANSMIT_MESSAGE.EXE" accent="236,72,153">
           <form onSubmit={handleSubmit} className="space-y-5 pt-3">
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
-              <TerminalInput label="Name"    name="name"    value={form.name}    onChange={handleChange} required accent="236,72,153" />
-              <TerminalInput label="Email"   name="email"   value={form.email}   onChange={handleChange} required type="email" accent="96,165,250" />
+              <TerminalInput label="Name"    name="name"    value={form.name}
+                onChange={handleChange} required accent="236,72,153" />
+              <TerminalInput label="Email"   name="email"   value={form.email}
+                onChange={handleChange} required type="email" accent="96,165,250" />
             </div>
-            <TerminalInput   label="Subject" name="subject" value={form.subject} onChange={handleChange} required accent="167,139,250" />
-            <TerminalTextarea label="Message" name="message" value={form.message} onChange={handleChange} accent="236,72,153" />
+            <TerminalInput label="Subject" name="subject" value={form.subject}
+              onChange={handleChange} required accent="167,139,250" />
+            <TerminalTextarea label="Message" name="message" value={form.message}
+              onChange={handleChange} accent="236,72,153" />
 
             {status === "success" && (
               <div className="font-mono text-sm rounded-lg px-4 py-3"
@@ -232,12 +241,19 @@ export default function ContactPage() {
             <button type="submit" disabled={status === "sending"}
               className="w-full font-mono font-bold text-sm py-3 rounded-xl tracking-widest uppercase transition-all duration-200 disabled:opacity-50"
               style={{
-                background:"rgba(236,72,153,0.12)", border:"1px solid rgba(236,72,153,0.35)",
+                background:"rgba(236,72,153,0.12)",
+                border:"1px solid rgba(236,72,153,0.35)",
                 color:"rgb(236,72,153)",
                 boxShadow: status === "sending" ? "none" : "0 0 20px rgba(236,72,153,0.1)",
               }}
-              onMouseEnter={e => { e.currentTarget.style.background="rgba(236,72,153,0.22)"; e.currentTarget.style.boxShadow="0 0 30px rgba(236,72,153,0.22)"; }}
-              onMouseLeave={e => { e.currentTarget.style.background="rgba(236,72,153,0.12)"; e.currentTarget.style.boxShadow=status==="sending"?"none":"0 0 20px rgba(236,72,153,0.1)"; }}>
+              onMouseEnter={e => {
+                e.currentTarget.style.background = "rgba(236,72,153,0.22)";
+                e.currentTarget.style.boxShadow  = "0 0 30px rgba(236,72,153,0.22)";
+              }}
+              onMouseLeave={e => {
+                e.currentTarget.style.background = "rgba(236,72,153,0.12)";
+                e.currentTarget.style.boxShadow  = status === "sending" ? "none" : "0 0 20px rgba(236,72,153,0.1)";
+              }}>
               {status === "sending" ? "[ TRANSMITTING... ▌ ]" : "[ TRANSMIT MESSAGE ]"}
             </button>
           </form>
@@ -250,10 +266,23 @@ export default function ContactPage() {
               <a key={i} href={s.href} target="_blank" rel="noreferrer"
                 className="flex items-center gap-3 rounded-lg px-4 py-3 font-mono text-sm transition-all duration-200 group"
                 style={{ background:"rgba(255,255,255,0.02)", border:`1px solid rgba(${s.color},0.15)` }}
-                onMouseEnter={e => { e.currentTarget.style.background=`rgba(${s.color},0.06)`; e.currentTarget.style.borderColor=`rgba(${s.color},0.4)`; e.currentTarget.style.boxShadow=`0 0 16px rgba(${s.color},0.12)`; }}
-                onMouseLeave={e => { e.currentTarget.style.background="rgba(255,255,255,0.02)"; e.currentTarget.style.borderColor=`rgba(${s.color},0.15)`; e.currentTarget.style.boxShadow="none"; }}>
-                <span className="text-[10px] tracking-widest" style={{ color:`rgba(${s.color},0.6)` }}>[{s.label.toUpperCase()}]</span>
-                <span className="text-gray-400 group-hover:text-white transition-colors duration-200">{s.value}</span>
+                onMouseEnter={e => {
+                  e.currentTarget.style.background   = `rgba(${s.color},0.06)`;
+                  e.currentTarget.style.borderColor  = `rgba(${s.color},0.4)`;
+                  e.currentTarget.style.boxShadow    = `0 0 16px rgba(${s.color},0.12)`;
+                }}
+                onMouseLeave={e => {
+                  e.currentTarget.style.background   = "rgba(255,255,255,0.02)";
+                  e.currentTarget.style.borderColor  = `rgba(${s.color},0.15)`;
+                  e.currentTarget.style.boxShadow    = "none";
+                }}>
+                <span className="text-[10px] tracking-widest"
+                  style={{ color:`rgba(${s.color},0.6)` }}>
+                  [{s.label.toUpperCase()}]
+                </span>
+                <span className="text-gray-400 group-hover:text-white transition-colors duration-200">
+                  {s.value}
+                </span>
                 <span className="ml-auto text-gray-600 group-hover:text-gray-300 transition-colors duration-200">↗</span>
               </a>
             ))}
