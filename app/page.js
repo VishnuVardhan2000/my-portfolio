@@ -2,7 +2,7 @@
 import { useRef, useEffect, useState, useCallback } from "react";
 import Link from "next/link";
 import { COMMANDS, NOT_FOUND, TERM_ACCENT, CHIP_COMMANDS } from "../lib/terminalCommands";
-import { useTheme } from "../context/ThemeContext";
+import { useTheme } from "./context/ThemeContext";
 
 
 const TA = `rgba(${TERM_ACCENT},`;
