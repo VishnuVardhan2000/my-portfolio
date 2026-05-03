@@ -1,7 +1,6 @@
 "use client";
 import { useRef, useEffect, useState, useCallback } from "react";
 import Link from "next/link";
-import { useTheme } from "./context/ThemeContext"; // ← ADDED
 
 const BOOT_LINES = [
   "> WELCOME TO MY PORTFOLIO...",
@@ -13,6 +12,131 @@ const BOOT_LINES = [
   "> ALL SYSTEMS GO. LET'S BUILD SOMETHING. ▌",
 ];
 
+// ── Terminal data ────────────────────────────────────────────
+const TERM_ACCENT = "74,222,128";
+const TA = `rgba(${TERM_ACCENT},`;
+
+const COMMANDS = {
+  help: [
+    "┌─────────────────────────────────────────┐",
+    "│          AVAILABLE COMMANDS             │",
+    "├─────────────────────────────────────────┤",
+    "│  whoami     →  Who is Vardhan?          │",
+    "│  skills     →  Tech stack & levels      │",
+    "│  projects   →  All projects + links     │",
+    "│  hire       →  Why work with me?        │",
+    "│  contact    →  Get in touch             │",
+    "│  status     →  Current availability     │",
+    "│  vish       →  About Vish.AI            │",
+    "│  vibeboard  →  About VibeBoard          │",
+    "│  clear      →  Clear terminal           │",
+    "└─────────────────────────────────────────┘",
+  ],
+  whoami: [
+    "▸ NAME      : Vardhan Doharey",
+    "▸ CLASS     : Full Stack Developer",
+    "▸ SUBCLASS  : AI Enthusiast · Problem Solver",
+    "▸ LEVEL     : 22",
+    "▸ LOCATION  : Lucknow, Uttar Pradesh, India",
+    "▸ STATUS    : Open to Work · Fresher",
+    "",
+    "I build real, live web apps with React, Next.js,",
+    "Node.js, MongoDB, and Groq AI integrations.",
+    "",
+    "Shipped 4 projects including 2 live AI apps —",
+    "Vish.AI (AI resume analyzer) and VibeBoard.",
+    "",
+    "I learn fast, ship things, and care deeply about quality.",
+  ],
+  skills: [
+    "┌─ SKILL TREE ─────────────────────────────┐",
+    "│  FRONTEND",
+    "│  ▸ React / Next.js    ████████░░  85%",
+    "│  ▸ Tailwind CSS       █████████░  90%",
+    "│  ▸ HTML5 / CSS3       █████████░  92%",
+    "│",
+    "│  BACKEND",
+    "│  ▸ Node.js / Express  ███████░░░  75%",
+    "│  ▸ MongoDB            ███████░░░  70%",
+    "│  ▸ REST APIs          ████████░░  80%",
+    "│",
+    "│  AI / TOOLS",
+    "│  ▸ Groq AI / LLMs     ███████░░░  72%",
+    "│  ▸ Git / Vercel       ████████░░  85%",
+    "└──────────────────────────────────────────┘",
+  ],
+  projects: [
+    "▸ [01] Vish.AI         — AI Resume Analyzer (Groq + Next.js)",
+    "▸ [02] VibeBoard       — Mood to Aesthetic Universe (AI + Unsplash)",
+    "▸ [03] TaskFlow        — Full Stack Task Manager (MERN + JWT)",
+    "▸ [04] This Portfolio  — RPG-themed Next.js Portfolio",
+    "",
+    "Type [ vish ] or [ vibeboard ] for deep dives.",
+    "Or visit /projects for live demos & GitHub links.",
+  ],
+  vish: [
+    "▸ PROJECT  : Vish.AI — AI Resume Analyzer",
+    "▸ STACK    : Next.js · Groq Llama 3.3 70B · React · Node.js",
+    "",
+    "→ Paste resume or upload PDF",
+    "→ Get ATS score out of 100",
+    "→ Section breakdown + keyword gaps",
+    "→ Actionable improvement suggestions",
+    "→ Sub 3s response via Groq API",
+    "",
+    "Live → my-portfolio-lemon-nine-24.vercel.app/vish-ai",
+  ],
+  vibeboard: [
+    "▸ PROJECT  : VibeBoard — Mood to Aesthetic Universe",
+    "▸ STACK    : Next.js · Groq AI · Tailwind · Unsplash API",
+    "",
+    "→ Type your mood → get a full aesthetic universe",
+    "→ AI color palette, anime match, music vibe",
+    "→ Hinglish mood quote + dynamic Unsplash images",
+    "",
+    "Live → vibeboard-woad.vercel.app",
+  ],
+  hire: [
+    "╔═══════════════════════════════════════════╗",
+    "║         WHY WORK WITH VARDHAN?            ║",
+    "╠═══════════════════════════════════════════╣",
+    "║  ✓ Ships real live apps — not tutorials   ║",
+    "║  ✓ 2 live AI apps using Groq + LLMs       ║",
+    "║  ✓ Full Stack: Frontend → DB → Deploy     ║",
+    "║  ✓ Fast learner — entire portfolio in     ║",
+    "║    under 2 months                         ║",
+    "║  ✓ Freelance · Full-time · Contract       ║",
+    "╠═══════════════════════════════════════════╣",
+    "║  Type [ contact ] to get in touch.        ║",
+    "╚═══════════════════════════════════════════╝",
+  ],
+  contact: [
+    "▸ EMAIL     : vardhandoharey@gmail.com",
+    "▸ PHONE     : +91 7524940380",
+    "▸ LINKEDIN  : linkedin.com/in/vardhan-doharey-zomb",
+    "▸ GITHUB    : github.com/VishnuVardhan2000",
+    "▸ PORTFOLIO : vardhan.is-a.dev",
+    "",
+    "Fastest response: LinkedIn DM or Email.",
+    "I typically reply within 24 hours.",
+  ],
+  status: [
+    "▸ AVAILABILITY   : Open to Work ✓",
+    "▸ TYPE           : Full-time · Freelance · Contract",
+    "▸ LOCATION       : Lucknow (Remote preferred)",
+    "▸ NOTICE PERIOD  : Immediate",
+    "▸ LAST SHIPPED   : Vish.AI (AI Resume Analyzer)",
+    "",
+    "→ Type [ hire ] to see why you should work with me.",
+  ],
+};
+
+const NOT_FOUND = (cmd) => [
+  `command not found: ${cmd}`,
+  "Type [ help ] to see all available commands.",
+];
+
+// ── Boot screen ──────────────────────────────────────────────
 function BootScreen({ onDone }) {
   const [lines, setLines] = useState([]);
   const [fading, setFading] = useState(false);
@@ -43,6 +167,7 @@ function BootScreen({ onDone }) {
   );
 }
 
+// ── RPG Frame ────────────────────────────────────────────────
 function RPGFrame({ children, title, accent = "168,85,247", className = "" }) {
   const ref = useRef(null);
   const c = `rgba(${accent},`;
@@ -65,17 +190,17 @@ function RPGFrame({ children, title, accent = "168,85,247", className = "" }) {
         "--accent-border": `rgba(${accent},0.75)`,
       }}>
       <span className="absolute top-[-1px] left-[-1px] w-3 h-3 pointer-events-none"
-        style={{ borderTop:`2px solid ${c}0.8)`, borderLeft:`2px solid ${c}0.8)`, borderRadius:"2px 0 0 0" }} />
+        style={{ borderTop: `2px solid ${c}0.8)`, borderLeft: `2px solid ${c}0.8)`, borderRadius: "2px 0 0 0" }} />
       <span className="absolute top-[-1px] right-[-1px] w-3 h-3 pointer-events-none"
-        style={{ borderTop:`2px solid ${c}0.8)`, borderRight:`2px solid ${c}0.8)`, borderRadius:"0 2px 0 0" }} />
+        style={{ borderTop: `2px solid ${c}0.8)`, borderRight: `2px solid ${c}0.8)`, borderRadius: "0 2px 0 0" }} />
       <span className="absolute bottom-[-1px] left-[-1px] w-3 h-3 pointer-events-none"
-        style={{ borderBottom:`2px solid ${c}0.8)`, borderLeft:`2px solid ${c}0.8)`, borderRadius:"0 0 0 2px" }} />
+        style={{ borderBottom: `2px solid ${c}0.8)`, borderLeft: `2px solid ${c}0.8)`, borderRadius: "0 0 0 2px" }} />
       <span className="absolute bottom-[-1px] right-[-1px] w-3 h-3 pointer-events-none"
-        style={{ borderBottom:`2px solid ${c}0.8)`, borderRight:`2px solid ${c}0.8)`, borderRadius:"0 0 2px 0" }} />
+        style={{ borderBottom: `2px solid ${c}0.8)`, borderRight: `2px solid ${c}0.8)`, borderRadius: "0 0 2px 0" }} />
       {title && (
         <div className="absolute -top-3.5 left-6">
           <span className="font-mono text-[11px] font-bold tracking-widest px-3 py-0.5 rounded"
-            style={{ color:`rgba(${accent},1)`, background:"#0a0a12", border:`1px solid ${c}0.25)` }}>
+            style={{ color: `rgba(${accent},1)`, background: "#0a0a12", border: `1px solid ${c}0.25)` }}>
             // {title}
           </span>
         </div>
@@ -85,6 +210,7 @@ function RPGFrame({ children, title, accent = "168,85,247", className = "" }) {
   );
 }
 
+// ── Stat XP Bar ──────────────────────────────────────────────
 function StatXPBar({ stat, animate }) {
   const [display, setDisplay] = useState("0");
   useEffect(() => {
@@ -120,16 +246,16 @@ function StatXPBar({ stat, animate }) {
     <div className="space-y-1.5">
       <div className="flex items-center justify-between">
         <span className="font-mono text-xs text-gray-400 tracking-widest uppercase">{stat.label}</span>
-        <span className="font-mono text-lg font-black" style={{ color:`rgba(${stat.color},1)` }}>
+        <span className="font-mono text-lg font-black" style={{ color: `rgba(${stat.color},1)` }}>
           {display}{stat.value !== "∞" ? "+" : ""}
         </span>
       </div>
-      <div className="h-2 rounded-full overflow-hidden" style={{ background:"rgba(255,255,255,0.05)" }}>
+      <div className="h-2 rounded-full overflow-hidden" style={{ background: "rgba(255,255,255,0.05)" }}>
         <div className="h-full rounded-full" style={{
           width: animate ? `${stat.pct}%` : "0%",
-          background:`linear-gradient(90deg,rgba(${stat.color},0.5),rgba(${stat.color},1))`,
-          boxShadow:`0 0 10px rgba(${stat.color},0.55)`,
-          transition:"width 1.3s cubic-bezier(0.22,1,0.36,1)",
+          background: `linear-gradient(90deg,rgba(${stat.color},0.5),rgba(${stat.color},1))`,
+          boxShadow: `0 0 10px rgba(${stat.color},0.55)`,
+          transition: "width 1.3s cubic-bezier(0.22,1,0.36,1)",
         }} />
       </div>
       <p className="font-mono text-[10px] text-gray-600">{stat.xp}</p>
@@ -137,50 +263,198 @@ function StatXPBar({ stat, animate }) {
   );
 }
 
+// ── Mini Terminal ────────────────────────────────────────────
+function MiniTerminal() {
+  const [history, setHistory]       = useState([
+    { type: "boot", text: "VARDHAN_OS v2.6 — ASK ME ANYTHING" },
+    { type: "boot", text: "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━" },
+    { type: "boot", text: "Type [ help ] to see all commands." },
+    { type: "gap",  text: "" },
+  ]);
+  const [input, setInput]           = useState("");
+  const [cmdHistory, setCmdHistory] = useState([]);
+  const [histIdx, setHistIdx]       = useState(-1);
+  const bottomRef = useRef(null);
+  const inputRef  = useRef(null);
+
+  useEffect(() => {
+    bottomRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [history]);
+
+  const runCommand = useCallback((raw) => {
+    const cmd = raw.trim().toLowerCase();
+    if (!cmd) return;
+    setCmdHistory((p) => [cmd, ...p]);
+    setHistIdx(-1);
+    if (cmd === "clear") { setHistory([]); return; }
+    const output = COMMANDS[cmd] || NOT_FOUND(cmd);
+    setHistory((p) => [
+      ...p,
+      { type: "input", text: `vardhan@portfolio:~$ ${raw}` },
+      ...output.map((line) => ({
+        type: cmd in COMMANDS ? "output" : "error",
+        text: line,
+      })),
+      { type: "gap", text: "" },
+    ]);
+  }, []);
+
+  const handleKey = (e) => {
+    if (e.key === "Enter") { runCommand(input); setInput(""); }
+    else if (e.key === "ArrowUp") {
+      e.preventDefault();
+      const next = Math.min(histIdx + 1, cmdHistory.length - 1);
+      setHistIdx(next);
+      setInput(cmdHistory[next] || "");
+    } else if (e.key === "ArrowDown") {
+      e.preventDefault();
+      const next = Math.max(histIdx - 1, -1);
+      setHistIdx(next);
+      setInput(next === -1 ? "" : cmdHistory[next]);
+    }
+  };
+
+  const lineColor = (type) => {
+    if (type === "boot")  return `${TA}0.6)`;
+    if (type === "input") return `${TA}1)`;
+    if (type === "error") return "rgba(255,80,80,0.85)";
+    if (type === "gap")   return "transparent";
+    return "rgba(209,213,219,0.9)";
+  };
+
+  return (
+    <RPGFrame title="TERMINAL.EXE" accent={TERM_ACCENT}>
+      <div className="pt-3 space-y-3">
+        <p className="font-mono text-[11px] tracking-widest" style={{ color: `${TA}0.5)` }}>
+          &gt; INTERACTIVE — ask about me, my projects, or how to hire me
+        </p>
+
+        {/* Window chrome */}
+        <div className="rounded-xl overflow-hidden"
+          style={{
+            border: `1px solid ${TA}0.2)`,
+            background: "rgba(3,7,3,0.97)",
+            boxShadow: `0 0 40px ${TA}0.08) inset, 0 0 80px ${TA}0.04)`,
+          }}>
+
+          {/* Top bar */}
+          <div className="flex items-center gap-2 px-4 py-2.5 border-b"
+            style={{ borderColor: `${TA}0.12)`, background: `${TA}0.04)` }}>
+            <span className="w-2.5 h-2.5 rounded-full bg-red-500/70" />
+            <span className="w-2.5 h-2.5 rounded-full bg-yellow-500/70" />
+            <span className="w-2.5 h-2.5 rounded-full bg-green-500/70" />
+            <span className="font-mono text-[10px] ml-2" style={{ color: `${TA}0.55)` }}>
+              vardhan@portfolio:~ — bash
+            </span>
+          </div>
+
+          {/* Output */}
+          <div
+            className="terminal-scroll overflow-y-auto p-4 space-y-0.5 cursor-text"
+            style={{ minHeight: "200px", maxHeight: "300px" }}
+            onClick={() => inputRef.current?.focus()}
+          >
+            {history.map((line, i) => (
+              <p key={i} className="font-mono text-xs leading-relaxed whitespace-pre"
+                style={{ color: lineColor(line.type) }}>
+                {line.text || "\u00A0"}
+              </p>
+            ))}
+
+            {/* Input row */}
+            <div className="flex items-center gap-2 mt-1">
+              <span className="font-mono text-xs shrink-0" style={{ color: `${TA}1)` }}>
+                vardhan@portfolio:~$
+              </span>
+              <input
+                ref={inputRef}
+                value={input}
+                onChange={(e) => setInput(e.target.value)}
+                onKeyDown={handleKey}
+                className="flex-1 bg-transparent outline-none font-mono text-xs text-gray-200 caret-transparent min-w-0"
+                spellCheck={false}
+                autoComplete="off"
+              />
+              <span className="font-mono text-xs cursor-blink shrink-0" style={{ color: `${TA}1)` }}>▌</span>
+            </div>
+            <div ref={bottomRef} />
+          </div>
+        </div>
+
+        {/* Quick command chips */}
+        <div className="flex flex-wrap gap-1.5">
+          {["whoami", "skills", "projects", "hire", "contact", "status", "vish", "vibeboard"].map((cmd) => (
+            <button key={cmd} onClick={() => { runCommand(cmd); inputRef.current?.focus(); }}
+              className="font-mono text-[10px] px-2.5 py-1 rounded-lg transition-all duration-200"
+              style={{
+                background: `${TA}0.06)`,
+                border: `1px solid ${TA}0.18)`,
+                color: `${TA}0.7)`,
+              }}
+              onMouseEnter={e => {
+                e.currentTarget.style.background = `${TA}0.16)`;
+                e.currentTarget.style.color = `${TA}1)`;
+                e.currentTarget.style.boxShadow = `0 0 10px ${TA}0.3)`;
+              }}
+              onMouseLeave={e => {
+                e.currentTarget.style.background = `${TA}0.06)`;
+                e.currentTarget.style.color = `${TA}0.7)`;
+                e.currentTarget.style.boxShadow = "none";
+              }}>
+              {cmd}
+            </button>
+          ))}
+        </div>
+        <p className="font-mono text-[10px]" style={{ color: `${TA}0.22)` }}>
+          ↑↓ arrow keys for command history · click output area to focus
+        </p>
+      </div>
+    </RPGFrame>
+  );
+}
+
+// ── Data ─────────────────────────────────────────────────────
 const stats = [
-  { value:"3", label:"Projects Shipped", color:"168,85,247",  pct:75, xp:"Lvl 3 · 3,000 XP — BUILDER CLASS"      },
-  { value:"3", label:"APIs Integrated",  color:"96,165,250",  pct:60, xp:"Lvl 3 · 3,000 XP — INTEGRATOR CLASS"   },
-  { value:"2", label:"Live AI Apps",     color:"45,212,191",  pct:50, xp:"Lvl 2 · 2,000 XP — AI MAGE CLASS"      },
-  { value:"∞", label:"Curiosity",        color:"250,204,21",  pct:99, xp:"MAX LEVEL · ∞ XP — OVERPOWERED ⚡"      },
+  { value: "4", label: "Projects Shipped", color: "168,85,247", pct: 80, xp: "Lvl 4 · 4,000 XP — BUILDER CLASS" },
+  { value: "3", label: "APIs Integrated",  color: "96,165,250",  pct: 60, xp: "Lvl 3 · 3,000 XP — INTEGRATOR CLASS" },
+  { value: "2", label: "Live AI Apps",     color: "45,212,191",  pct: 50, xp: "Lvl 2 · 2,000 XP — AI MAGE CLASS" },
+  { value: "∞", label: "Curiosity",        color: "250,204,21",  pct: 99, xp: "MAX LEVEL · ∞ XP — OVERPOWERED ⚡" },
 ];
 
 const stack = [
-  "Next.js","React","Tailwind CSS","Node.js",
-  "MongoDB","Groq AI","JavaScript","Git","Vercel","REST APIs",
+  "Next.js", "React", "Tailwind CSS", "Node.js",
+  "MongoDB", "Groq AI", "JavaScript", "Git", "Vercel", "REST APIs",
 ];
 
 const projects = [
   {
-    name:"VibeBoard",
-    thumb:"/vibeboard-thumb.png",
-    tagline:"Describe your mood. Get an aesthetic universe.",
-    desc:"AI-generated color palettes, anime matches, music vibes & Hinglish mood quotes — all from one mood input. Powered by Groq AI + Unsplash.",
-    tags:["Next.js","Groq AI","Tailwind CSS","Unsplash API"],
-    badge:"AI · Live", glow:"147,51,234",
-    live:"https://vibeboard-woad.vercel.app",
-    github:"https://github.com/VishnuVardhan2000/vibeboard",
+    name: "VibeBoard",
+    thumb: "/vibeboard-thumb.png",
+    tagline: "Describe your mood. Get an aesthetic universe.",
+    desc: "AI-generated color palettes, anime matches, music vibes & Hinglish mood quotes — all from one mood input. Powered by Groq AI + Unsplash.",
+    tags: ["Next.js", "Groq AI", "Tailwind CSS", "Unsplash API"],
+    badge: "AI · Live", glow: "147,51,234",
+    live: "https://vibeboard-woad.vercel.app",
+    github: "https://github.com/VishnuVardhan2000/vibeboard",
   },
   {
-    name:"Vish.AI",
-    thumb:"/vish-ai-thumb.png",
-    tagline:"Paste your resume. Get an ATS score instantly.",
-    desc:"AI-powered resume analyzer — get an ATS score, section breakdown, keyword gaps, and actionable suggestions. Upload PDF or paste text. Powered by Groq Llama 3.3 70B.",
-    tags:["Next.js","Groq AI","React","Node.js"],
-    badge:"AI · Live", glow:"45,212,191",
-    live:"https://my-portfolio-lemon-nine-24.vercel.app/vish-ai",
-    github:"https://github.com/VishnuVardhan2000/my-portfolio",
+    name: "Vish.AI",
+    thumb: "/vish-ai-thumb.png",
+    tagline: "Paste your resume. Get an ATS score instantly.",
+    desc: "AI-powered resume analyzer — get an ATS score, section breakdown, keyword gaps, and actionable suggestions. Powered by Groq Llama 3.3 70B.",
+    tags: ["Next.js", "Groq AI", "React", "Node.js"],
+    badge: "AI · Live", glow: "45,212,191",
+    live: "https://my-portfolio-lemon-nine-24.vercel.app/vish-ai",
+    github: "https://github.com/VishnuVardhan2000/my-portfolio",
   },
 ];
 
+// ── Main Page ────────────────────────────────────────────────
 export default function Home() {
-  const { setAccent } = useTheme(); // ← ADDED
-  const [booted, setBooted] = useState(false);
+  const [booted, setBooted]           = useState(false);
   const [statsVisible, setStatsVisible] = useState(false);
-  const statsRef = useRef(null);
+  const statsRef  = useRef(null);
   const handleBoot = useCallback(() => setBooted(true), []);
-
-  // ← ADDED — set purple on mount
-  useEffect(() => { setAccent("168,85,247"); }, [setAccent]);
 
   useEffect(() => {
     if (!booted || !statsRef.current) return;
@@ -324,7 +598,7 @@ export default function Home() {
                         <img src={p.thumb} alt={`${p.name} preview`}
                           width={600} height={340} loading="lazy"
                           className="w-full object-cover object-top transition-transform duration-500 group-hover:scale-105"
-                          style={{ aspectRatio:"16/9" }} />
+                          style={{ aspectRatio: "16/9" }} />
                       </div>
                     )}
                     <div className="p-6 flex flex-col gap-4">
@@ -334,15 +608,14 @@ export default function Home() {
                           <p className="text-sm text-gray-400 leading-snug font-mono">{p.tagline}</p>
                         </div>
                         <span className="shrink-0 text-xs font-bold px-2.5 py-1 rounded-full border whitespace-nowrap font-mono"
-                          style={{ backgroundColor:`rgba(${p.glow},0.1)`, borderColor:`rgba(${p.glow},0.28)`, color:`rgb(${p.glow})` }}>
+                          style={{ backgroundColor: `rgba(${p.glow},0.1)`, borderColor: `rgba(${p.glow},0.28)`, color: `rgb(${p.glow})` }}>
                           {p.badge}
                         </span>
                       </div>
                       <p className="text-gray-500 text-sm leading-relaxed font-mono">{p.desc}</p>
                       <div className="flex flex-wrap gap-2">
                         {p.tags.map((t, j) => (
-                          <span key={j}
-                            className="text-xs px-2.5 py-1 rounded-lg bg-white/[0.04] border border-white/[0.08] text-gray-400 font-mono">
+                          <span key={j} className="text-xs px-2.5 py-1 rounded-lg bg-white/[0.04] border border-white/[0.08] text-gray-400 font-mono">
                             {t}
                           </span>
                         ))}
@@ -351,7 +624,7 @@ export default function Home() {
                         {p.live ? (
                           <a href={p.live} target="_blank" rel="noreferrer"
                             className="text-[11px] px-4 py-2 rounded-md font-semibold neon-text-hover transition-all duration-200 font-mono"
-                            style={{ backgroundColor:`rgba(${p.glow},0.14)`, color:`rgb(${p.glow})`, border:`1px solid rgba(${p.glow},0.28)` }}>
+                            style={{ backgroundColor: `rgba(${p.glow},0.14)`, color: `rgb(${p.glow})`, border: `1px solid rgba(${p.glow},0.28)` }}>
                             Live Demo ↗
                           </a>
                         ) : (
@@ -387,24 +660,70 @@ export default function Home() {
               </div>
             </section>
 
-            {/* ── Active Quest ── */}
-            <RPGFrame title="CURRENT_QUEST.EXE" accent="45,212,191">
-              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-5 pt-2">
-                <div>
-                  <p className="font-mono text-[11px] text-teal-400/60 tracking-widest mb-1.5">
-                    &gt; ACTIVE QUEST
-                  </p>
-                  <p className="text-white font-semibold font-mono">
-                    Shipped Vish.AI &mdash; deepening Full Stack &amp; AI skills
-                  </p>
-                  <p className="text-gray-500 text-sm mt-1 font-mono">
-                    Physics Wallah Skills — Full Stack Development Specialization
-                  </p>
+            {/* ── Mini Terminal ── */}
+            <section className="mb-20">
+              <p className="font-mono text-xs uppercase tracking-widest text-gray-600 mb-6">
+                &gt; ASK_ME_ANYTHING.EXE
+              </p>
+              <MiniTerminal />
+            </section>
+
+            {/* ── CTA / Available for Work ── */}
+            <RPGFrame title="AVAILABLE_FOR.EXE" accent="45,212,191">
+              <div className="pt-2 space-y-4">
+                <p className="font-mono text-[11px] text-teal-400/60 tracking-widest">
+                  &gt; STATUS: OPEN TO OPPORTUNITIES
+                </p>
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                  {/* Freelance */}
+                  <div className="rounded-xl p-4 space-y-2"
+                    style={{ background: "rgba(45,212,191,0.05)", border: "1px solid rgba(45,212,191,0.18)" }}>
+                    <p className="font-mono text-xs text-teal-300 font-bold tracking-widest">⚡ FREELANCE</p>
+                    <p className="text-gray-400 text-xs font-mono leading-relaxed">
+                      Need a landing page, web app or AI integration? Let&apos;s build it.
+                    </p>
+                    <a href="/contact"
+                      className="block text-center font-mono text-[10px] font-bold px-3 py-1.5 rounded-lg transition-all duration-200"
+                      style={{ background: "rgba(45,212,191,0.12)", color: "rgb(45,212,191)", border: "1px solid rgba(45,212,191,0.3)" }}
+                      onMouseEnter={e => e.currentTarget.style.background = "rgba(45,212,191,0.22)"}
+                      onMouseLeave={e => e.currentTarget.style.background = "rgba(45,212,191,0.12)"}>
+                      DM Me →
+                    </a>
+                  </div>
+                  {/* Full Time */}
+                  <div className="rounded-xl p-4 space-y-2"
+                    style={{ background: "rgba(168,85,247,0.05)", border: "1px solid rgba(168,85,247,0.18)" }}>
+                    <p className="font-mono text-xs text-purple-300 font-bold tracking-widest">🏢 FULL TIME</p>
+                    <p className="text-gray-400 text-xs font-mono leading-relaxed">
+                      Open to full-time roles in Full Stack or AI-focused teams.
+                    </p>
+                    <a href="/resume"
+                      className="block text-center font-mono text-[10px] font-bold px-3 py-1.5 rounded-lg transition-all duration-200"
+                      style={{ background: "rgba(168,85,247,0.12)", color: "rgb(168,85,247)", border: "1px solid rgba(168,85,247,0.3)" }}
+                      onMouseEnter={e => e.currentTarget.style.background = "rgba(168,85,247,0.22)"}
+                      onMouseLeave={e => e.currentTarget.style.background = "rgba(168,85,247,0.12)"}>
+                      View Resume →
+                    </a>
+                  </div>
+                  {/* Callback */}
+                  <div className="rounded-xl p-4 space-y-2"
+                    style={{ background: "rgba(250,204,21,0.05)", border: "1px solid rgba(250,204,21,0.18)" }}>
+                    <p className="font-mono text-xs text-yellow-300 font-bold tracking-widest">📞 CALL BACK</p>
+                    <p className="text-gray-400 text-xs font-mono leading-relaxed">
+                      Want to discuss a project or role? Apply for a quick call.
+                    </p>
+                    <a href="mailto:vardhandoharey@gmail.com?subject=Callback Request"
+                      className="block text-center font-mono text-[10px] font-bold px-3 py-1.5 rounded-lg transition-all duration-200"
+                      style={{ background: "rgba(250,204,21,0.12)", color: "rgb(250,204,21)", border: "1px solid rgba(250,204,21,0.3)" }}
+                      onMouseEnter={e => e.currentTarget.style.background = "rgba(250,204,21,0.22)"}
+                      onMouseLeave={e => e.currentTarget.style.background = "rgba(250,204,21,0.12)"}>
+                      Request Call →
+                    </a>
+                  </div>
                 </div>
-                <Link href="/projects"
-                  className="shrink-0 rect-btn bg-teal-600 hover:bg-teal-500 text-white text-[11px] font-semibold neon-text-hover transition-all duration-200 whitespace-nowrap font-mono">
-                  All Projects →
-                </Link>
+                <p className="font-mono text-[10px] text-gray-600 text-center pt-1">
+                  ▸ Currently grinding Full Stack + AI · Based in Lucknow · Available remotely
+                </p>
               </div>
             </RPGFrame>
 
