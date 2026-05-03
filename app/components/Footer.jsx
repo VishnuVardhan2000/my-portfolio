@@ -16,6 +16,7 @@ export default function Footer() {
           <Link href="/about"    className="hover:text-white transition">About</Link>
           <Link href="/projects" className="hover:text-white transition">Projects</Link>
           <Link href="/resume"   className="hover:text-white transition">Resume</Link>
+          <Link href="/terminal" className="hover:text-white transition">Terminal</Link>
         </div>
 
         <div className="flex items-center gap-6">

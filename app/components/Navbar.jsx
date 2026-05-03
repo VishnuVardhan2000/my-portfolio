@@ -8,7 +8,8 @@ const LINKS = [
   { label: "About",    href: "/about",    color: "0,255,136",   hex: "#00ff88" },
   { label: "Projects", href: "/projects", color: "96,165,250",  hex: "#60a5fa" },
   { label: "Resume",   href: "/resume",   color: "251,191,36",  hex: "#fbbf24" },
-  { label: "Contact",  href: "/contact",  color: "236,72,153",  hex: "#ec4899" },
+  { label: "Contact",  href: "/contact",  color: "236,72,153",  hex: "#48ec56" },
+  { label: "terminal", href: "/terminal", label: "Terminal" , color: "#003504" }
 ];
 
 export default function Navbar() {

@@ -6,7 +6,7 @@ const TRACKS = [
   { title: "Portfolio BGM",        file: "/portfoliobg.m4a",                    emoji: "🎵" },
   { title: "Poster Boy",           file: "/music/2hollis - poster boy.mp3",     emoji: "🖤" },
   { title: "Montagem Alquimia",    file: "/music/MONTAGEM ALQUIMIA (S).mp3",    emoji: "⚗️" },
-  { title: "Montagem Miau Remix",  file: "/music/MONTAGEM Miau Remix.mp3",      emoji: "🐱" },
+  { title: "Montagem Miau Remix",  file: "/music/MONTAGEM Miau Remix.mp3",      emoji: "❤️‍🔥" },
   { title: "Montagem Santa Fe 2",  file: "/music/MONTAGEM SANTA FE 2 (S).mp3", emoji: "🌵" },
   { title: "MONTAGEM REBOLA",      file: "/music/MONTAGEM REBOLA.mp3",          emoji: "🫵" },
 ];
