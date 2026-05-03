@@ -179,7 +179,24 @@ export default function Resume() {
               </p>
               <div className="flex flex-wrap gap-3 mt-3 text-xs text-gray-500 font-mono">
                 <span>📧 vardhandoharey@gmail.com</span>
-                <span>📞 Fill the form i will conect with you</span>
+                <a href="/contact"
+  className="flex items-center gap-1.5 font-mono text-sm transition-all duration-200 group"
+  style={{ color:"rgba(251,191,36,0.7)" }}
+  onMouseEnter={e => {
+    e.currentTarget.style.color = "rgba(251,191,36,1)";
+    e.currentTarget.style.textShadow = "0 0 8px rgba(251,191,36,0.6)";
+  }}
+  onMouseLeave={e => {
+    e.currentTarget.style.color = "rgba(251,191,36,0.7)";
+    e.currentTarget.style.textShadow = "none";
+  }}>
+  <span>📬</span>
+  <span className="border-b border-dashed"
+    style={{ borderColor:"rgba(251,191,36,0.4)" }}>
+    Contact me via form
+  </span>
+  <span className="transition-transform duration-200 group-hover:translate-x-1">↗</span>
+</a>
                 <a href="https://linkedin.com/in/vardhan-doharey-zomb" target="_blank" rel="noreferrer"
                   className="text-yellow-400 hover:text-yellow-300 transition">LinkedIn ↗</a>
                 <a href="https://github.com/VishnuVardhan2000" target="_blank" rel="noreferrer"
