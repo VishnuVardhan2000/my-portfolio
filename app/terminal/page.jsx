@@ -1,12 +1,11 @@
 "use client";
 import { useState, useRef, useEffect, useCallback } from "react";
-
 import { COMMANDS, NOT_FOUND, TERM_ACCENT, CHIP_COMMANDS } from "../../lib/terminalCommands";
-
 
 const TA = `rgba(${TERM_ACCENT},`;
 
 const BOOT = [
+  "VARDHAN_OS v2.6 — PORTFOLIO TERMINAL",
   "VARDHAN_OS v2.6 — PORTFOLIO TERMINAL",
   "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━",
   "Initializing knowledge base...",
