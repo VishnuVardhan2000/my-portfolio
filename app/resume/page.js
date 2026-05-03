@@ -179,7 +179,7 @@ export default function Resume() {
               </p>
               <div className="flex flex-wrap gap-3 mt-3 text-xs text-gray-500 font-mono">
                 <span>📧 vardhandoharey@gmail.com</span>
-                <span>📞 7524940380</span>
+                <span>📞 Fill the form i will conect with you</span>
                 <a href="https://linkedin.com/in/vardhan-doharey-zomb" target="_blank" rel="noreferrer"
                   className="text-yellow-400 hover:text-yellow-300 transition">LinkedIn ↗</a>
                 <a href="https://github.com/VishnuVardhan2000" target="_blank" rel="noreferrer"
