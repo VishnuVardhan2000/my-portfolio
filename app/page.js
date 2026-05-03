@@ -484,7 +484,7 @@ export default function Home() {
                             </span>
                         }
                         {p.github && (
-                          <a href={p.github} target="_blank" rel="noreferrer"
+                          <a  href={p.github} target="_blank" rel="noreferrer"
                             className="text-xs px-4 py-2 rounded-lg font-semibold text-gray-400 bg-white/[0.03] border border-white/[0.07] hover:bg-white/[0.07] transition-all duration-200 font-mono">
                             GitHub
                           </a>

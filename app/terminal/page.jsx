@@ -1,6 +1,9 @@
 "use client";
 import { useState, useRef, useEffect, useCallback } from "react";
 
+import { COMMANDS, NOT_FOUND, TERM_ACCENT, CHIP_COMMANDS } from "../../lib/terminalCommands";
+
+
 const ACCENT = "168,85,247";
 const A = `rgba(${ACCENT},`;
 
