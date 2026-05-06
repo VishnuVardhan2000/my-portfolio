@@ -298,4 +298,147 @@ export default function AboutPage() {
         }
         @keyframes glitch-shake {
           0%   { transform: translate(0) skewX(0deg); }
-          15%  { transform: 
+          15%  { transform: translate(-5px, 1px) skewX(-4deg); }
+          30%  { transform: translate(5px, -1px) skewX(3deg); }
+          50%  { transform: translate(-3px, 2px) skewX(-2deg); }
+          70%  { transform: translate(3px, -1px) skewX(1deg); }
+          85%  { transform: translate(-1px, 0) skewX(-0.5deg); }
+          100% { transform: translate(0) skewX(0deg); }
+        }
+        @keyframes glitch-scan {
+          0%   { transform: translateY(0); opacity: 1; }
+          50%  { transform: translateY(-4px); opacity: 0.7; }
+          100% { transform: translateY(0); opacity: 0; }
+        }
+        @keyframes glitch-bars {
+          0%   { transform: translateX(0); opacity: 1; }
+          33%  { transform: translateX(-6px); opacity: 0.8; }
+          66%  { transform: translateX(4px); opacity: 0.6; }
+          100% { transform: translateX(0); opacity: 0; }
+        }
+        @keyframes border-pulse {
+          0%,100% { box-shadow: 0 0 28px rgba(0,255,136,0.12); }
+          50%      { box-shadow: 0 0 42px rgba(0,255,136,0.38), 0 0 64px rgba(168,85,247,0.18); }
+        }
+        .profile-glitch-wrap.music-on .profile-img-border {
+          animation: border-pulse 0.85s ease-in-out infinite;
+        }
+      `}</style>
+
+      <div className="fixed top-[-200px] right-[-100px] w-[500px] h-[500px] bg-green-900/[0.06] rounded-full blur-[180px] pointer-events-none" />
+      <div className="fixed bottom-[-150px] left-[-100px] w-[400px] h-[400px] bg-emerald-900/[0.05] rounded-full blur-[160px] pointer-events-none" />
+
+      <section className="max-w-4xl mx-auto px-4 pt-8 pb-24 space-y-10"
+        style={{ opacity: booted ? 1 : 0, transition: "opacity 0.8s ease" }}>
+
+        {/* HERO */}
+        <RPGFrame title="PLAYER_DATA.EXE" accent="0,255,136">
+          <div className="flex flex-col md:flex-row gap-8 items-center md:items-start pt-3">
+            <div className={`profile-glitch-wrap flex-shrink-0 ${musicPlaying ? "music-on" : ""} ${glitching ? "glitch-hit" : ""}`}>
+              <div className="profile-img-border w-32 h-32 md:w-36 md:h-36 rounded-xl overflow-hidden"
+                style={{
+                  border: `2px solid rgba(0,255,136,${musicPlaying ? 0.65 : 0.35})`,
+                  boxShadow: "0 0 28px rgba(0,255,136,0.12)",
+                  transition: "border-color 0.3s ease",
+                }}>
+                <img src={PLAYER.photo} alt={PLAYER.name} className="w-full h-full object-cover"
+                  onError={(e) => {
+                    e.target.parentNode.innerHTML =
+                      `<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;background:rgba(0,255,136,0.05);font-size:2.5rem">⚔️</div>`;
+                  }} />
+              </div>
+              <span className="absolute -bottom-3 left-1/2 -translate-x-1/2 font-mono text-[10px] px-2 py-0.5 rounded-full whitespace-nowrap"
+                style={{
+                  background: musicPlaying ? "rgba(168,85,247,0.2)" : "rgba(0,255,136,0.15)",
+                  color: musicPlaying ? "#c084fc" : "#00ff88",
+                  border: `1px solid ${musicPlaying ? "rgba(168,85,247,0.4)" : "rgba(0,255,136,0.3)"}`,
+                  transition: "all 0.4s ease",
+                }}>
+                {musicPlaying ? "♫ VIBING" : "● ONLINE"}
+              </span>
+            </div>
+
+            <div className="flex-1 space-y-3 font-mono text-sm">
+              <div>
+                <p className="text-[10px] tracking-[0.2em] text-green-500/60 uppercase mb-1">&gt; IDENTITY CONFIRMED</p>
+                <h1 className="text-2xl md:text-3xl font-bold" style={{ letterSpacing: "0.04em" }}>
+                  <span className="about-name-glow">{PLAYER.name}</span>
+                </h1>
+              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-1.5 text-xs">
+                {[
+                  ["CLASS",    PLAYER.class,          "text-green-400"],
+                  ["SUBCLASS", PLAYER.subclass,       "text-blue-400"],
+                  ["LEVEL",    PLAYER.level,          "text-yellow-400"],
+                  ["STATUS",   PLAYER.status + " ▌", "text-pink-400"],
+                ].map(([key, val, cls]) => (
+                  <p key={key}>
+                    <span className="text-green-400/60">{key}</span>
+                    <span className="text-gray-500"> : </span>
+                    <span className={cls}>{val}</span>
+                  </p>
+                ))}
+              </div>
+              <p className="text-gray-400 text-xs leading-relaxed pt-2 border-t border-white/5">{PLAYER.bio}</p>
+            </div>
+          </div>
+        </RPGFrame>
+
+        {/* SKILL TREE */}
+        <div ref={skillsRef}>
+          <RPGFrame title="SKILL_TREE.DAT" accent="96,165,250">
+            <div className="space-y-5 pt-3">
+              <p className="font-mono text-[11px] text-blue-400/60 tracking-widest">&gt; LOADING ATTRIBUTES...</p>
+              {SKILLS.map((s, i) => <XPBar key={i} skill={s} animate={skillsVisible} />)}
+            </div>
+          </RPGFrame>
+        </div>
+
+        {/* QUEST LOG */}
+        <RPGFrame title="QUEST_LOG.TXT" accent="236,72,153">
+          <div className="space-y-5 pt-3">
+            <p className="font-mono text-[11px] text-pink-400/60 tracking-widest">&gt; READING COMPLETED QUESTS...</p>
+            {EXPERIENCE.map((q, i) => (
+              <div key={i} className="space-y-2 font-mono text-sm border-b border-white/5 pb-4 last:border-0 last:pb-0">
+                <div className="flex items-start justify-between gap-3 flex-wrap">
+                  <div>
+                    <p className="text-white font-semibold">{q.role}</p>
+                    <p className="text-pink-400/70 text-xs">&gt; {q.company} · {q.period}</p>
+                  </div>
+                  <span className="text-[10px] px-2 py-0.5 rounded border whitespace-nowrap"
+                    style={{ color: `rgba(${q.tagColor},1)`, borderColor: `rgba(${q.tagColor},0.3)`, background: `rgba(${q.tagColor},0.08)` }}>
+                    ✓ {q.tag}
+                  </span>
+                </div>
+                <p className="text-gray-400 text-xs leading-relaxed">{q.desc}</p>
+              </div>
+            ))}
+          </div>
+        </RPGFrame>
+
+        {/* ORIGIN STORY */}
+        <RPGFrame title="ORIGIN_STORY.LOG" accent="167,139,250">
+          <div className="space-y-4 pt-3 font-mono text-sm">
+            <p className="text-[11px] text-purple-400/60 tracking-widest">&gt; READING BACKSTORY...</p>
+            {EDUCATION.map((o, i) => (
+              <div key={i} className="space-y-1.5">
+                <p className="text-white font-semibold">{o.degree}</p>
+                <p className="text-purple-400/70 text-xs">&gt; {o.institute} · {o.period}</p>
+                <p className="text-gray-400 text-xs leading-relaxed">{o.detail}</p>
+              </div>
+            ))}
+          </div>
+        </RPGFrame>
+
+        {/* ACTIVE QUESTS */}
+        <RPGFrame title="ACTIVE_QUESTS.EXE" accent="74,222,128">
+          <div className="space-y-5 pt-3">
+            <p className="font-mono text-[11px] text-green-400/60 tracking-widest">&gt; FETCHING CURRENT OBJECTIVES...</p>
+            {ACTIVE_QUESTS.map((q, i) => <QuestBar key={i} quest={q} />)}
+          </div>
+        </RPGFrame>
+
+      </section>
+    </>
+  );
+}
